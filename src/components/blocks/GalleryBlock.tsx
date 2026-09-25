@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { defaultGalleryAsApiItems } from "@/lib/default-gallery";
 
 type GalleryItem = {
   id: string;
@@ -25,7 +26,8 @@ export function GalleryBlock({
   useDatabase,
   categories,
 }: Props) {
-  const [items, setItems] = useState<GalleryItem[]>([]);
+  const fallback = useMemo(() => defaultGalleryAsApiItems(), []);
+  const [items, setItems] = useState<GalleryItem[]>(fallback);
   const [active, setActive] = useState<string>("All");
   const [lightbox, setLightbox] = useState<GalleryItem | null>(null);
 
@@ -38,20 +40,25 @@ export function GalleryBlock({
   }, [categories]);
 
   useEffect(() => {
-    if (!useDatabase) return;
+    if (!useDatabase) {
+      setItems(fallback);
+      return;
+    }
     let cancelled = false;
     fetch("/api/gallery")
       .then((r) => r.json())
       .then((data) => {
-        if (!cancelled) setItems(data.items || []);
+        if (cancelled) return;
+        const next = data.items || [];
+        setItems(next.length > 0 ? next : fallback);
       })
       .catch(() => {
-        if (!cancelled) setItems([]);
+        if (!cancelled) setItems(fallback);
       });
     return () => {
       cancelled = true;
     };
-  }, [useDatabase]);
+  }, [useDatabase, fallback]);
 
   const visible = items.filter(
     (item) => active === "All" || item.category === active,
@@ -95,7 +102,7 @@ export function GalleryBlock({
         ))}
         {visible.length === 0 ? (
           <p className="msco-gallery__empty">
-            No gallery images yet. Add them in the Admin Gallery.
+            No gallery images in this category yet.
           </p>
         ) : null}
       </div>

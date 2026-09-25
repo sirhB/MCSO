@@ -1,12 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/admin";
+import { ensureGalleryDefaults } from "@/lib/ensure-gallery";
+import { defaultGalleryAsApiItems } from "@/lib/default-gallery";
 
 export async function GET() {
-  const items = await prisma.galleryImage.findMany({
-    orderBy: [{ category: "asc" }, { sortOrder: "asc" }, { createdAt: "desc" }],
-  });
-  return NextResponse.json({ items });
+  try {
+    await ensureGalleryDefaults();
+    const items = await prisma.galleryImage.findMany({
+      orderBy: [{ category: "asc" }, { sortOrder: "asc" }, { createdAt: "desc" }],
+    });
+    if (items.length === 0) {
+      return NextResponse.json({ items: defaultGalleryAsApiItems() });
+    }
+    return NextResponse.json({ items });
+  } catch (err) {
+    console.error("Gallery GET failed, serving static defaults:", err);
+    return NextResponse.json({ items: defaultGalleryAsApiItems() });
+  }
 }
 
 export async function POST(req: NextRequest) {
