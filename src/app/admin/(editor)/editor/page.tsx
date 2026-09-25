@@ -63,7 +63,7 @@ export default function EditorPage() {
       <div className="editor-topbar">
         <div>
           <h1>Website Editor</h1>
-          <p style={{ margin: 0, color: "#a8a29e", fontSize: "0.9rem" }}>
+          <p className="editor-topbar__hint" style={{ margin: 0, color: "#a8a29e", fontSize: "0.9rem" }}>
             Drag blocks from the left. Click any section to edit text and images. Large Publish button when done.
           </p>
         </div>

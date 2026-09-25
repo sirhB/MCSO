@@ -45,7 +45,7 @@ export default async function AdminDashboardPage() {
         </div>
       </div>
 
-      <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", marginBottom: "1.5rem" }}>
+      <div className="admin-actions">
         <Link href="/admin/editor" className="admin-btn admin-btn--gold">
           Edit website
         </Link>
