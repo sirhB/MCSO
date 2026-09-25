@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { Puck, type Data } from "@puckeditor/core";
+import "@puckeditor/core/puck.css";
 import { puckConfig, type MCSOProps } from "@/lib/puck-config";
 import { defaultHomeData } from "@/lib/default-page-data";
 

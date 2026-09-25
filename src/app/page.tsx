@@ -1,8 +1,8 @@
-import { Render } from "@puckeditor/core/rsc";
 import type { Data } from "@puckeditor/core";
 import { prisma } from "@/lib/prisma";
-import { puckConfig, type MCSOProps } from "@/lib/puck-config";
+import { type MCSOProps } from "@/lib/puck-config";
 import { defaultHomeData } from "@/lib/default-page-data";
+import { PageRenderer } from "@/components/PageRenderer";
 
 export const dynamic = "force-dynamic";
 
@@ -20,5 +20,5 @@ async function getPublishedHome(): Promise<Data<MCSOProps>> {
 
 export default async function HomePage() {
   const data = await getPublishedHome();
-  return <Render config={puckConfig} data={data} />;
+  return <PageRenderer data={data} />;
 }
