@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
@@ -8,6 +8,20 @@ export default function AdminLoginPage() {
   const router = useRouter();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [checking, setChecking] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/setup/status")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.needsSetup) {
+          router.replace("/admin/setup");
+          return;
+        }
+        setChecking(false);
+      })
+      .catch(() => setChecking(false));
+  }, [router]);
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -26,6 +40,16 @@ export default function AdminLoginPage() {
     }
     router.push("/admin");
     router.refresh();
+  }
+
+  if (checking) {
+    return (
+      <div className="login-page">
+        <div className="login-card">
+          <p>Loading…</p>
+        </div>
+      </div>
+    );
   }
 
   return (

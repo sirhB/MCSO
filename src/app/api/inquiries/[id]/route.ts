@@ -67,6 +67,9 @@ export async function PATCH(
       },
     });
 
+    const { scheduleBackup } = await import("@/lib/backup");
+    scheduleBackup();
+
     return NextResponse.json({ inquiry });
   } catch (err) {
     if (err instanceof z.ZodError) {

@@ -1,7 +1,6 @@
 import type { NextConfig } from "next";
+import "./src/lib/runtime-env";
 
-const nextConfig: NextConfig = {
-  /* config options here */
-};
+const nextConfig: NextConfig = {};
 
 export default nextConfig;

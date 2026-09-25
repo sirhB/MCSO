@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/admin";
+import { scheduleBackup } from "@/lib/backup";
 
 const createSchema = z.object({
   name: z.string().min(1).max(120),
@@ -61,6 +62,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    scheduleBackup();
     return NextResponse.json({ ok: true, id: inquiry.id }, { status: 201 });
   } catch (err) {
     if (err instanceof z.ZodError) {
