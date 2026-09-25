@@ -641,11 +641,18 @@ a {
   transition: background var(--dur-fast) ease, color var(--dur-fast) ease, border-color var(--dur-fast) ease;
 }
 
-.msco-gallery__tabs button.is-active,
-.msco-gallery__tabs button:hover {
+.msco-gallery__tabs button.is-active {
   color: var(--brand-ink);
   background: var(--brand);
   border-color: var(--brand);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .msco-gallery__tabs button:hover {
+    color: var(--brand-ink);
+    background: var(--brand);
+    border-color: var(--brand);
+  }
 }
 
 .msco-gallery__grid {
