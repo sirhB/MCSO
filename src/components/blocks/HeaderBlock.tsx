@@ -18,6 +18,7 @@ const NAV_LINKS = [
 export function HeaderBlock({ logoSrc, ctaLabel, ctaHref }: Props) {
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
     setMounted(true);
@@ -29,6 +30,17 @@ export function HeaderBlock({ logoSrc, ctaLabel, ctaHref }: Props) {
       document.body.style.overflow = "";
     };
   }, [open]);
+
+  useEffect(() => {
+    function onScroll() {
+      const doc = document.documentElement;
+      const max = doc.scrollHeight - doc.clientHeight;
+      setProgress(max > 0 ? (doc.scrollTop / max) * 100 : 0);
+    }
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   function closeMenu() {
     setOpen(false);
@@ -58,10 +70,16 @@ export function HeaderBlock({ logoSrc, ctaLabel, ctaHref }: Props) {
 
   return (
     <>
+      <div
+        className="msco-progress"
+        style={{ width: `${progress}%` }}
+        aria-hidden
+      />
       <header className={`msco-header ${open ? "is-open" : ""}`}>
         <a href="#top" className="msco-header__brand" aria-label="MCSO home" onClick={closeMenu}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={logoSrc} alt="MCSO" />
+          <span className="msco-header__wordmark">MCSO</span>
         </a>
 
         <nav className="msco-header__nav msco-header__nav--desktop" aria-label="Primary">

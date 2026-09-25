@@ -1,17 +1,72 @@
 @import "tailwindcss";
 
 :root {
-  --msco-bg: #0a0a0c;
-  --msco-bg-elevated: #121218;
-  --msco-fg: #f4f4f5;
-  --msco-muted: #a1a1aa;
-  --msco-gold: #e5c158;
-  --msco-gold-dim: rgba(229, 193, 88, 0.15);
-  --msco-line: rgba(255, 255, 255, 0.08);
-  --msco-danger: #f87171;
-  --msco-ok: #4ade80;
-  --font-display: var(--font-display);
-  --font-body: var(--font-body);
+  /* Surfaces */
+  --bg-0: #08080a;
+  --bg-1: #0d0d11;
+  --bg-2: #14141b;
+  --bg-overlay: rgba(8, 8, 10, 0.72);
+
+  /* Ink */
+  --fg: #f5f2ea;
+  --fg-muted: #b4b0a6;
+  --fg-subtle: #7d7a73;
+
+  /* Brand */
+  --brand: #d4b45a;
+  --brand-soft: rgba(212, 180, 90, 0.14);
+  --brand-ink: #14110a;
+  --brand-line: rgba(212, 180, 90, 0.45);
+
+  /* Lines / feedback */
+  --line: rgba(255, 255, 255, 0.09);
+  --danger: #f87171;
+  --ok: #4ade80;
+
+  /* Space */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4.5rem;
+  --gutter: clamp(1.15rem, 4vw, 5%);
+  --section-y: clamp(4rem, 10vw, 7.5rem);
+
+  /* Type */
+  --text-hero: clamp(2.5rem, 7vw, 5.25rem);
+  --text-h2: clamp(2rem, 4vw, 3.1rem);
+  --text-h3: clamp(1.35rem, 2.4vw, 1.85rem);
+  --text-body: 1.05rem;
+  --text-eyebrow: 0.72rem;
+  --tracking-wide: 0.2em;
+  --measure: 42rem;
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast: 180ms;
+  --dur-med: 420ms;
+
+  /* Legacy aliases used across the codebase */
+  --msco-bg: var(--bg-0);
+  --msco-bg-elevated: var(--bg-2);
+  --msco-fg: var(--fg);
+  --msco-muted: var(--fg-muted);
+  --msco-gold: var(--brand);
+  --msco-gold-dim: var(--brand-soft);
+  --msco-line: var(--line);
+  --msco-danger: var(--danger);
+  --msco-ok: var(--ok);
+
+  /* Admin (aligned to brand) */
+  --admin-bg: #f2efe8;
+  --admin-panel: #16141a;
+  --admin-ink: #1a1714;
+  --admin-muted: #6b655c;
+  --admin-line: #e4dfd5;
+  --admin-card: #fffcf7;
 }
 
 * {
@@ -24,8 +79,8 @@ html {
 
 body {
   margin: 0;
-  background: var(--msco-bg);
-  color: var(--msco-fg);
+  background: var(--bg-0);
+  color: var(--fg);
   font-family: var(--font-body), "Segoe UI", sans-serif;
   overflow-x: hidden;
   -webkit-text-size-adjust: 100%;
@@ -42,7 +97,23 @@ a {
   color: inherit;
 }
 
+:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 3px;
+}
+
 /* —— Marketing site —— */
+.msco-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--brand), #f0d78a);
+  z-index: 1100;
+  pointer-events: none;
+  transition: width 80ms linear;
+}
+
 .msco-header {
   position: fixed;
   inset: 0 0 auto;
@@ -50,22 +121,37 @@ a {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.75rem 5%;
-  background: rgba(10, 10, 12, 0.94);
-  border-bottom: 1px solid var(--msco-line);
+  padding: 0.75rem var(--gutter);
+  background: rgba(8, 8, 10, 0.94);
+  border-bottom: 1px solid var(--line);
 }
 
 @media (min-width: 901px) {
   .msco-header {
-    background: rgba(10, 10, 12, 0.85);
+    background: rgba(8, 8, 10, 0.78);
     backdrop-filter: blur(18px);
   }
 }
 
+.msco-header__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+}
+
 .msco-header__brand img {
-  width: 72px;
-  height: 72px;
+  width: 64px;
+  height: 64px;
   object-fit: contain;
+}
+
+.msco-header__wordmark {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 1.35rem;
+  letter-spacing: 0.18em;
+  color: var(--brand);
+  font-weight: 500;
 }
 
 .msco-header__nav {
@@ -81,7 +167,7 @@ a {
   display: none;
   width: 48px;
   height: 48px;
-  border: 1px solid var(--msco-line);
+  border: 1px solid var(--line);
   background: transparent;
   border-radius: 8px;
   padding: 0;
@@ -97,8 +183,8 @@ a {
   display: block;
   width: 22px;
   height: 2px;
-  background: var(--msco-gold);
-  transition: transform 0.25s ease, opacity 0.25s ease;
+  background: var(--brand);
+  transition: transform var(--dur-fast) var(--ease-out), opacity var(--dur-fast) ease;
 }
 
 .msco-header.is-open {
@@ -124,20 +210,45 @@ a {
 .msco-header__nav a {
   text-decoration: none;
   opacity: 0.65;
-  transition: opacity 0.2s, color 0.2s;
+  transition: opacity var(--dur-fast) ease, color var(--dur-fast) ease;
+  position: relative;
+  padding: 0.5rem 0;
 }
 
 .msco-header__nav a:hover {
   opacity: 1;
-  color: var(--msco-gold);
+  color: var(--brand);
+}
+
+.msco-header__nav--desktop a:not(.msco-header__cta)::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 1px;
+  background: var(--brand);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--dur-med) var(--ease-out);
+}
+
+.msco-header__nav--desktop a:not(.msco-header__cta):hover::after {
+  transform: scaleX(1);
 }
 
 .msco-header__cta {
   opacity: 1 !important;
-  color: var(--msco-gold) !important;
-  border: 1px solid var(--msco-gold);
+  color: var(--brand) !important;
+  border: 1px solid var(--brand-line);
   padding: 0.75rem 1.4rem;
   text-decoration: none;
+  transition: background var(--dur-fast) ease, color var(--dur-fast) ease;
+}
+
+.msco-header__cta:hover {
+  background: var(--brand);
+  color: var(--brand-ink) !important;
 }
 
 .msco-hero {
@@ -154,7 +265,7 @@ a {
   inset: 0;
   background-size: cover;
   background-position: center;
-  opacity: 0.45;
+  opacity: 0.5;
   transform: scale(1.05);
   animation: mscoZoom 22s ease-in-out infinite alternate;
 }
@@ -163,31 +274,50 @@ a {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(circle at center, rgba(10, 10, 12, 0.35), rgba(10, 10, 12, 0.95)),
-    linear-gradient(180deg, rgba(10, 10, 12, 0.2), rgba(10, 10, 12, 0.9));
+    radial-gradient(ellipse at center, rgba(8, 8, 10, 0.25), rgba(8, 8, 10, 0.92) 70%),
+    linear-gradient(180deg, rgba(8, 8, 10, 0.35), rgba(8, 8, 10, 0.95));
+}
+
+.msco-hero__atmosphere {
+  position: absolute;
+  inset: auto 0 0;
+  height: 40%;
+  background: linear-gradient(transparent, var(--bg-0));
+  pointer-events: none;
 }
 
 .msco-hero__content {
   position: relative;
   z-index: 1;
   max-width: 920px;
-  padding: 7rem 1.25rem 4rem;
-  animation: mscoFadeUp 1s ease both;
+  padding: 7rem var(--gutter) 4rem;
+  animation: mscoFadeUp 1s var(--ease-out) both;
+}
+
+.msco-hero__brand {
+  margin: 0 0 1.25rem;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: clamp(2.4rem, 8vw, 4.5rem);
+  letter-spacing: 0.28em;
+  color: var(--brand);
+  font-weight: 500;
+  line-height: 1;
+  text-indent: 0.28em;
 }
 
 .msco-hero__subtitle {
-  color: var(--msco-gold);
-  letter-spacing: 0.28em;
+  color: var(--brand);
+  letter-spacing: var(--tracking-wide);
   text-transform: uppercase;
-  font-size: 0.8rem;
+  font-size: var(--text-eyebrow);
   font-weight: 600;
-  margin: 0 0 1.5rem;
+  margin: 0 0 1.35rem;
 }
 
 .msco-hero__title {
   font-family: var(--font-display), Georgia, serif;
   font-weight: 300;
-  font-size: clamp(2.4rem, 7vw, 5rem);
+  font-size: var(--text-hero);
   line-height: 1.08;
   letter-spacing: -0.03em;
   margin: 0 0 1.5rem;
@@ -195,15 +325,15 @@ a {
 
 .msco-hero__title em {
   font-style: italic;
-  color: var(--msco-gold);
+  color: var(--brand);
   font-weight: 400;
 }
 
 .msco-hero__desc {
-  color: var(--msco-muted);
+  color: var(--fg-muted);
   font-size: 1.1rem;
   line-height: 1.75;
-  max-width: 720px;
+  max-width: 40rem;
   margin: 0 auto 2.5rem;
 }
 
@@ -224,13 +354,13 @@ a {
   text-decoration: none;
   border: 1px solid transparent;
   cursor: pointer;
-  transition: transform 0.2s, background 0.2s, color 0.2s;
+  transition: transform var(--dur-fast) var(--ease-out), background var(--dur-fast) ease, color var(--dur-fast) ease, border-color var(--dur-fast) ease;
 }
 
 .msco-btn--primary {
-  background: var(--msco-gold);
-  color: #0a0a0c;
-  border-color: var(--msco-gold);
+  background: var(--brand);
+  color: var(--brand-ink);
+  border-color: var(--brand);
 }
 
 .msco-btn--primary:hover {
@@ -239,8 +369,13 @@ a {
 
 .msco-btn--ghost {
   background: transparent;
-  color: #fff;
+  color: var(--fg);
   border-color: rgba(255, 255, 255, 0.25);
+}
+
+.msco-btn--ghost:hover {
+  border-color: var(--brand);
+  color: var(--brand);
 }
 
 .msco-btn:disabled {
@@ -249,10 +384,10 @@ a {
 }
 
 .msco-eyebrow {
-  color: var(--msco-gold);
-  letter-spacing: 0.22em;
+  color: var(--brand);
+  letter-spacing: var(--tracking-wide);
   text-transform: uppercase;
-  font-size: 0.75rem;
+  font-size: var(--text-eyebrow);
   font-weight: 600;
   margin: 0 0 0.75rem;
 }
@@ -263,13 +398,42 @@ a {
 .msco-contact,
 .msco-textblock,
 .msco-cta {
-  padding: 6rem 5%;
+  padding: var(--section-y) var(--gutter);
+  position: relative;
+}
+
+.msco-about,
+.msco-services,
+.msco-gallery {
+  background: var(--bg-1);
+}
+
+.msco-about__glow,
+.msco-services__glow {
+  position: absolute;
+  width: min(560px, 70vw);
+  height: min(560px, 70vw);
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--brand-soft), transparent 68%);
+  filter: blur(8px);
+  pointer-events: none;
+}
+
+.msco-about__glow {
+  top: -8%;
+  left: -10%;
+}
+
+.msco-services__glow {
+  top: 10%;
+  right: -12%;
 }
 
 .msco-about__intro,
 .msco-section-head {
-  max-width: 780px;
-  margin-bottom: 3rem;
+  max-width: var(--measure);
+  margin-bottom: var(--space-7);
+  position: relative;
 }
 
 .msco-about__intro h2,
@@ -279,7 +443,7 @@ a {
 .msco-cta h2 {
   font-family: var(--font-display), Georgia, serif;
   font-weight: 400;
-  font-size: clamp(2rem, 4vw, 3rem);
+  font-size: var(--text-h2);
   margin: 0 0 1rem;
 }
 
@@ -287,17 +451,19 @@ a {
 .msco-contact__desc,
 .msco-textblock p,
 .msco-cta p {
-  color: var(--msco-muted);
+  color: var(--fg-muted);
   line-height: 1.7;
-  font-size: 1.05rem;
+  font-size: var(--text-body);
+  max-width: 38rem;
 }
 
 .msco-chapter {
   display: grid;
   grid-template-columns: 1.05fr 1fr;
-  gap: 2.5rem;
+  gap: clamp(1.5rem, 4vw, 3rem);
   align-items: center;
-  margin-bottom: 4rem;
+  margin-bottom: clamp(3rem, 7vw, 5rem);
+  position: relative;
 }
 
 .msco-chapter--flip .msco-chapter__media {
@@ -306,97 +472,154 @@ a {
 
 .msco-chapter__media {
   overflow: hidden;
-  min-height: 360px;
-  background: var(--msco-bg-elevated);
+  min-height: 380px;
+  background: var(--bg-2);
+  position: relative;
+}
+
+.msco-chapter__media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, transparent 55%, var(--brand-soft));
+  opacity: 0;
+  transition: opacity var(--dur-med) ease;
+  pointer-events: none;
+}
+
+.msco-chapter:hover .msco-chapter__media::after {
+  opacity: 1;
 }
 
 .msco-chapter__media img {
   width: 100%;
   height: 100%;
-  min-height: 360px;
+  min-height: 380px;
   object-fit: cover;
   display: block;
-  transition: transform 0.6s ease;
+  transition: transform 1.1s var(--ease-out);
 }
 
 .msco-chapter:hover .msco-chapter__media img {
-  transform: scale(1.04);
+  transform: scale(1.05);
+}
+
+.msco-chapter__index {
+  display: block;
+  font-family: var(--font-display), Georgia, serif;
+  color: var(--fg-subtle);
+  font-size: 2rem;
+  line-height: 1;
+  margin-bottom: 0.65rem;
 }
 
 .msco-chapter__tag {
-  color: var(--msco-gold);
+  color: var(--brand);
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  font-size: 0.72rem;
+  font-size: var(--text-eyebrow);
 }
 
 .msco-chapter h3 {
   font-family: var(--font-display), Georgia, serif;
-  font-size: 2rem;
+  font-size: var(--text-h3);
   font-weight: 400;
   margin: 0.6rem 0 1rem;
 }
 
 .msco-chapter p {
-  color: var(--msco-muted);
+  color: var(--fg-muted);
   line-height: 1.75;
+  max-width: 34rem;
 }
 
 .msco-chapter blockquote {
   margin: 1.5rem 0 0;
   padding-left: 1rem;
-  border-left: 2px solid var(--msco-gold);
-  color: var(--msco-fg);
+  border-left: 2px solid var(--brand);
+  color: var(--fg);
   font-style: italic;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 1.15rem;
 }
 
-.msco-services__grid {
+/* Editorial services — no bordered cards */
+.msco-services__list {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1.5rem;
+  gap: 1.15rem;
 }
 
-.msco-service-card {
-  background: var(--msco-bg-elevated);
-  border: 1px solid var(--msco-line);
+.msco-service {
+  position: relative;
+  min-height: 300px;
   overflow: hidden;
   display: grid;
-  grid-template-rows: 220px 1fr;
+  align-items: end;
+  isolation: isolate;
 }
 
-.msco-service-card__media img {
+.msco-service--feature {
+  grid-column: 1 / -1;
+  min-height: 440px;
+}
+
+.msco-service__media {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.msco-service__media img {
   width: 100%;
-  height: 220px;
+  height: 100%;
   object-fit: cover;
   display: block;
+  transition: transform 1s var(--ease-out);
 }
 
-.msco-service-card__body {
-  padding: 1.5rem;
+.msco-service:hover .msco-service__media img {
+  transform: scale(1.06);
 }
 
-.msco-service-card__body span {
-  color: var(--msco-gold);
-  font-size: 0.7rem;
+.msco-service__body {
+  position: relative;
+  z-index: 1;
+  padding: 1.6rem 1.5rem 1.45rem;
+  background: linear-gradient(transparent, rgba(8, 8, 10, 0.92) 45%);
+}
+
+.msco-service__tag {
+  color: var(--brand);
+  font-size: var(--text-eyebrow);
   letter-spacing: 0.16em;
   text-transform: uppercase;
 }
 
-.msco-service-card__body h3 {
-  margin: 0.5rem 0;
-  font-size: 1.25rem;
+.msco-service__body h3 {
+  margin: 0.45rem 0 0.65rem;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 1.45rem;
+  font-weight: 400;
 }
 
-.msco-service-card__body p {
-  color: var(--msco-muted);
+.msco-service__body p {
+  color: var(--fg-muted);
   line-height: 1.6;
+  margin: 0 0 0.85rem;
+  max-width: 34rem;
 }
 
 .msco-link {
-  color: var(--msco-gold);
+  color: var(--brand);
   text-decoration: none;
   font-size: 0.85rem;
   letter-spacing: 0.08em;
+  transition: opacity var(--dur-fast) ease;
+}
+
+.msco-link:hover {
+  opacity: 0.8;
 }
 
 .msco-gallery__tabs {
@@ -408,19 +631,21 @@ a {
 
 .msco-gallery__tabs button {
   background: transparent;
-  border: 1px solid var(--msco-line);
-  color: var(--msco-muted);
+  border: 1px solid var(--line);
+  color: var(--fg-muted);
   padding: 0.7rem 1.1rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   font-size: 0.7rem;
   cursor: pointer;
+  transition: background var(--dur-fast) ease, color var(--dur-fast) ease, border-color var(--dur-fast) ease;
 }
 
-.msco-gallery__tabs button.is-active {
-  color: #0a0a0c;
-  background: var(--msco-gold);
-  border-color: var(--msco-gold);
+.msco-gallery__tabs button.is-active,
+.msco-gallery__tabs button:hover {
+  color: var(--brand-ink);
+  background: var(--brand);
+  border-color: var(--brand);
 }
 
 .msco-gallery__grid {
@@ -444,7 +669,8 @@ a {
   height: 100%;
   object-fit: cover;
   display: block;
-  transition: transform 0.4s ease;
+  transition: transform 0.55s var(--ease-out);
+  filter: contrast(1.05) saturate(0.92);
 }
 
 .msco-gallery__item:hover img {
@@ -455,7 +681,7 @@ a {
   position: absolute;
   inset: auto 0 0;
   padding: 1rem;
-  background: linear-gradient(transparent, rgba(0, 0, 0, 0.85));
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.88));
   text-align: left;
   display: flex;
   flex-direction: column;
@@ -468,12 +694,12 @@ a {
 
 .msco-gallery__item em {
   font-style: normal;
-  color: var(--msco-muted);
+  color: var(--fg-muted);
   font-size: 0.75rem;
 }
 
 .msco-gallery__empty {
-  color: var(--msco-muted);
+  color: var(--fg-muted);
   grid-column: 1 / -1;
 }
 
@@ -495,14 +721,14 @@ a {
 }
 
 .msco-lightbox p {
-  color: var(--msco-muted);
+  color: var(--fg-muted);
   margin-top: 1rem;
 }
 
 .msco-contact {
   background:
-    radial-gradient(circle at top right, var(--msco-gold-dim), transparent 45%),
-    var(--msco-bg);
+    radial-gradient(circle at top right, var(--brand-soft), transparent 42%),
+    var(--bg-0);
 }
 
 .msco-contact__grid {
@@ -515,21 +741,22 @@ a {
 .msco-contact__phone {
   display: inline-block;
   margin: 1.5rem 0 0.5rem;
-  color: var(--msco-gold);
+  color: var(--brand);
   font-size: 1.6rem;
   text-decoration: none;
   letter-spacing: 0.04em;
+  font-family: var(--font-display), Georgia, serif;
 }
 
 .msco-contact__location {
-  color: var(--msco-muted);
+  color: var(--fg-muted);
 }
 
 .msco-contact__form {
   display: grid;
   gap: 1rem;
-  background: var(--msco-bg-elevated);
-  border: 1px solid var(--msco-line);
+  background: var(--bg-2);
+  border: 1px solid var(--line);
   padding: 1.75rem;
 }
 
@@ -539,42 +766,45 @@ a {
   font-size: 0.8rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--msco-muted);
+  color: var(--fg-subtle);
 }
 
 .msco-contact__form input,
 .msco-contact__form textarea {
   width: 100%;
-  background: #0a0a0c;
-  border: 1px solid var(--msco-line);
-  color: var(--msco-fg);
+  background: var(--bg-0);
+  border: 1px solid var(--line);
+  color: var(--fg);
   padding: 0.9rem 1rem;
   font: inherit;
   text-transform: none;
   letter-spacing: normal;
+  transition: border-color var(--dur-fast) ease;
 }
 
 .msco-contact__form input:focus,
 .msco-contact__form textarea:focus {
-  outline: 1px solid var(--msco-gold);
+  outline: none;
+  border-color: var(--brand);
 }
 
 .msco-form-ok {
-  color: var(--msco-ok);
+  color: var(--ok);
 }
 
 .msco-form-error {
-  color: var(--msco-danger);
+  color: var(--danger);
 }
 
 .msco-footer {
-  border-top: 1px solid var(--msco-line);
-  padding: 2.5rem 5%;
+  border-top: 1px solid var(--line);
+  padding: 2.5rem var(--gutter);
   display: flex;
   gap: 1rem;
   align-items: center;
-  color: var(--msco-muted);
+  color: var(--fg-subtle);
   font-size: 0.85rem;
+  background: var(--bg-0);
 }
 
 .msco-footer img {
@@ -602,7 +832,7 @@ a {
 .msco-imageblock:not(.is-bleed) {
   max-width: 960px;
   margin: 0 auto;
-  padding: 0 5%;
+  padding: 0 var(--gutter);
 }
 
 .msco-imageblock:not(.is-bleed) img {
@@ -611,14 +841,16 @@ a {
 }
 
 .msco-imageblock figcaption {
-  color: var(--msco-muted);
-  padding: 0.75rem 5%;
+  color: var(--fg-muted);
+  padding: 0.75rem var(--gutter);
   font-size: 0.9rem;
 }
 
 .msco-cta {
   text-align: center;
-  background: linear-gradient(180deg, transparent, var(--msco-gold-dim));
+  background:
+    radial-gradient(circle at center, var(--brand-soft), transparent 55%),
+    var(--bg-1);
 }
 
 .msco-cta .msco-btn {
@@ -650,6 +882,11 @@ a {
     padding: 0.65rem 1rem;
   }
 
+  .msco-header__wordmark {
+    font-size: 1.05rem;
+    letter-spacing: 0.14em;
+  }
+
   .msco-header__nav--desktop {
     display: none;
   }
@@ -664,7 +901,7 @@ a {
     position: fixed;
     inset: 0;
     z-index: 1000;
-    background: #0a0a0c;
+    background: var(--bg-0);
     padding: 6.5rem 1.5rem 2rem;
     transform: translateY(-12px);
     opacity: 0;
@@ -696,7 +933,7 @@ a {
   .msco-header__nav--mobile a {
     opacity: 1;
     padding: 1rem 1.1rem;
-    border: 1px solid var(--msco-line);
+    border: 1px solid var(--line);
     border-radius: 10px;
     text-align: center;
     min-height: 48px;
@@ -708,17 +945,22 @@ a {
   }
 
   .msco-header__brand img {
-    width: 56px;
-    height: 56px;
+    width: 52px;
+    height: 52px;
   }
 
   .msco-hero__content {
     padding: 6.5rem 1rem 3rem;
   }
 
+  .msco-hero__brand {
+    letter-spacing: 0.2em;
+    text-indent: 0.2em;
+    margin-bottom: 1rem;
+  }
+
   .msco-hero__subtitle {
-    letter-spacing: 0.16em;
-    font-size: 0.7rem;
+    letter-spacing: 0.14em;
     margin-bottom: 1rem;
   }
 
@@ -739,18 +981,9 @@ a {
     text-align: center;
   }
 
-  .msco-about,
-  .msco-services,
-  .msco-gallery,
-  .msco-contact,
-  .msco-textblock,
-  .msco-cta {
-    padding: 4rem 1.15rem;
-  }
-
   .msco-chapter,
   .msco-chapter--flip .msco-chapter__media,
-  .msco-services__grid,
+  .msco-services__list,
   .msco-contact__grid {
     grid-template-columns: 1fr;
   }
@@ -769,16 +1002,10 @@ a {
     min-height: 260px;
   }
 
-  .msco-chapter h3 {
-    font-size: 1.55rem;
-  }
-
-  .msco-service-card {
-    grid-template-rows: 180px 1fr;
-  }
-
-  .msco-service-card__media img {
-    height: 180px;
+  .msco-service,
+  .msco-service--feature {
+    min-height: 280px;
+    grid-row: auto;
   }
 
   .msco-gallery__tabs {
@@ -820,6 +1047,10 @@ a {
 }
 
 @media (max-width: 480px) {
+  .msco-header__wordmark {
+    display: none;
+  }
+
   .msco-gallery__grid {
     grid-template-columns: 1fr;
   }
@@ -838,12 +1069,12 @@ a {
   min-height: 100vh;
   display: grid;
   grid-template-columns: 260px 1fr;
-  background: #f3f1ec;
-  color: #1c1917;
+  background: var(--admin-bg);
+  color: var(--admin-ink);
 }
 
 .admin-nav {
-  background: #1c1917;
+  background: var(--admin-panel);
   color: #fafaf9;
   padding: 1.5rem 1rem;
   display: flex;
@@ -861,7 +1092,7 @@ a {
 .admin-nav__brand {
   font-family: var(--font-display), Georgia, serif;
   font-size: 1.4rem;
-  color: var(--msco-gold);
+  color: var(--brand);
   padding: 0.5rem 0.75rem 1.5rem;
 }
 
@@ -884,7 +1115,7 @@ a {
   display: block;
   width: 22px;
   height: 2px;
-  background: var(--msco-gold);
+  background: var(--brand);
 }
 
 .admin-nav__links {
@@ -903,8 +1134,8 @@ a {
 
 .admin-nav a:hover,
 .admin-nav a.is-active {
-  background: rgba(229, 193, 88, 0.15);
-  color: var(--msco-gold);
+  background: var(--brand-soft);
+  color: var(--brand);
   opacity: 1;
 }
 
@@ -916,8 +1147,8 @@ a {
 }
 
 .admin-nav__signout:hover {
-  border-color: var(--msco-gold) !important;
-  color: var(--msco-gold) !important;
+  border-color: var(--brand) !important;
+  color: var(--brand) !important;
 }
 
 .admin-main {
@@ -938,14 +1169,14 @@ a {
 }
 
 .admin-main .lede {
-  color: #57534e;
+  color: var(--admin-muted);
   margin: 0 0 1.75rem;
   font-size: 1.05rem;
 }
 
 .admin-card {
-  background: #fff;
-  border: 1px solid #e7e5e4;
+  background: var(--admin-card);
+  border: 1px solid var(--admin-line);
   border-radius: 12px;
   padding: 1.25rem;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
@@ -958,19 +1189,21 @@ a {
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  background: #1c1917;
+  background: var(--admin-panel);
   color: #fff;
+  text-decoration: none;
+  display: inline-block;
 }
 
 .admin-btn--gold {
-  background: var(--msco-gold);
-  color: #1c1917;
+  background: var(--brand);
+  color: var(--brand-ink);
 }
 
 .admin-btn--ghost {
   background: transparent;
-  border: 1px solid #d6d3d1;
-  color: #1c1917;
+  border: 1px solid var(--admin-line);
+  color: var(--admin-ink);
 }
 
 .admin-btn:disabled {
@@ -983,16 +1216,16 @@ a {
   display: grid;
   place-items: center;
   background:
-    radial-gradient(circle at top, rgba(229, 193, 88, 0.2), transparent 40%),
-    #0a0a0c;
-  color: #fff;
+    radial-gradient(circle at top, var(--brand-soft), transparent 40%),
+    var(--bg-0);
+  color: var(--fg);
   padding: 1.5rem;
 }
 
 .login-card {
   width: min(420px, 100%);
-  background: #121218;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--bg-2);
+  border: 1px solid var(--line);
   border-radius: 16px;
   padding: 2rem;
 }
@@ -1000,10 +1233,11 @@ a {
 .login-card h1 {
   font-family: var(--font-display), Georgia, serif;
   margin: 0 0 0.5rem;
+  color: var(--brand);
 }
 
 .login-card p {
-  color: #a1a1aa;
+  color: var(--fg-muted);
   margin: 0 0 1.5rem;
 }
 
@@ -1017,9 +1251,9 @@ a {
 .login-card input {
   padding: 0.9rem 1rem;
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: #0a0a0c;
-  color: #fff;
+  border: 1px solid var(--line);
+  background: var(--bg-0);
+  color: var(--fg);
   font-size: 1.05rem;
 }
 
@@ -1031,7 +1265,7 @@ a {
 
 .pipeline-col {
   background: #fafaf9;
-  border: 1px solid #e7e5e4;
+  border: 1px solid var(--admin-line);
   border-radius: 12px;
   min-height: 280px;
   padding: 0.75rem;
@@ -1045,8 +1279,8 @@ a {
 }
 
 .inquiry-card {
-  background: #fff;
-  border: 1px solid #e7e5e4;
+  background: var(--admin-card);
+  border: 1px solid var(--admin-line);
   border-radius: 10px;
   padding: 0.85rem;
   margin-bottom: 0.75rem;
@@ -1054,7 +1288,7 @@ a {
 }
 
 .inquiry-card:hover {
-  border-color: var(--msco-gold);
+  border-color: var(--brand);
 }
 
 .inquiry-card strong {
@@ -1063,7 +1297,7 @@ a {
 }
 
 .inquiry-card small {
-  color: #78716c;
+  color: var(--admin-muted);
 }
 
 .flow-chart {
@@ -1077,15 +1311,15 @@ a {
 .flow-node {
   padding: 0.75rem 1rem;
   border-radius: 999px;
-  background: #fff;
-  border: 2px solid #d6d3d1;
+  background: var(--admin-card);
+  border: 2px solid var(--admin-line);
   font-weight: 600;
   min-width: 110px;
   text-align: center;
 }
 
 .flow-node.is-hot {
-  border-color: var(--msco-gold);
+  border-color: var(--brand);
   background: #fff8e7;
 }
 
@@ -1103,7 +1337,7 @@ a {
 .contacts-table td {
   text-align: left;
   padding: 0.85rem 0.6rem;
-  border-bottom: 1px solid #e7e5e4;
+  border-bottom: 1px solid var(--admin-line);
   vertical-align: top;
 }
 
@@ -1111,7 +1345,7 @@ a {
   font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: #78716c;
+  color: var(--admin-muted);
 }
 
 .editor-frame {
@@ -1125,7 +1359,7 @@ a {
   justify-content: space-between;
   gap: 1rem;
   padding: 0 1rem;
-  background: #1c1917;
+  background: var(--admin-panel);
   color: #fff;
 }
 
@@ -1133,6 +1367,7 @@ a {
   margin: 0;
   font-size: 1.15rem;
   font-family: var(--font-display), Georgia, serif;
+  color: var(--brand);
 }
 
 .editor-topbar .actions {
@@ -1149,9 +1384,9 @@ a {
 }
 
 .stat-card {
-  background: #fff;
+  background: var(--admin-card);
   border-radius: 12px;
-  border: 1px solid #e7e5e4;
+  border: 1px solid var(--admin-line);
   padding: 1.1rem;
 }
 
@@ -1159,6 +1394,7 @@ a {
   display: block;
   font-size: 1.8rem;
   margin-top: 0.35rem;
+  color: var(--admin-ink);
 }
 
 @media (max-width: 900px) {
@@ -1274,10 +1510,6 @@ a {
 @media (max-width: 480px) {
   .stat-grid {
     grid-template-columns: 1fr;
-  }
-
-  .admin-main > div[style*="display: flex"] {
-    flex-direction: column;
   }
 
   .admin-main .admin-btn {
