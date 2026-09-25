@@ -18,6 +18,7 @@ export const defaultHomeData: Data<MCSOProps> = {
       type: "Hero",
       props: {
         id: "hero-1",
+        brandName: "MCSO",
         subtitle: "Licensed & Insured // Florida & New York",
         title: "The Standard of",
         titleAccent: "Professional Protection.",

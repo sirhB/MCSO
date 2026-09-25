@@ -1,6 +1,7 @@
 "use client";
 
 type Props = {
+  brandName?: string;
   subtitle: string;
   title: string;
   titleAccent: string;
@@ -20,7 +21,9 @@ export function HeroBlock(props: Props) {
         style={{ backgroundImage: `url(${props.backgroundImage})` }}
       />
       <div className="msco-hero__veil" />
+      <div className="msco-hero__atmosphere" aria-hidden />
       <div className="msco-hero__content">
+        <p className="msco-hero__brand">{props.brandName || "MCSO"}</p>
         <p className="msco-hero__subtitle">{props.subtitle}</p>
         <h1 className="msco-hero__title">
           {props.title}
