@@ -3,7 +3,6 @@ import { getToken } from "next-auth/jwt";
 import "@/lib/runtime-env";
 
 export async function middleware(req: NextRequest) {
-  // Infer public URL from the request so NEXTAUTH_URL is not required in Hostinger.
   if (!process.env.NEXTAUTH_URL || process.env.NEXTAUTH_URL === "http://localhost:3000") {
     const host = req.headers.get("x-forwarded-host") || req.headers.get("host");
     const proto = req.headers.get("x-forwarded-proto") || "https";
@@ -14,7 +13,11 @@ export async function middleware(req: NextRequest) {
 
   const { pathname } = req.nextUrl;
   if (!pathname.startsWith("/admin")) return NextResponse.next();
-  if (pathname.startsWith("/admin/login")) return NextResponse.next();
+
+  // Public admin entry points
+  if (pathname.startsWith("/admin/login") || pathname.startsWith("/admin/setup")) {
+    return NextResponse.next();
+  }
 
   const token = await getToken({
     req,

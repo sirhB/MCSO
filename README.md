@@ -13,12 +13,9 @@ That’s it. The app:
 - Uses local SQLite automatically (no `DATABASE_URL` to configure)
 - Syncs a durable backup to **Supabase Storage** with those two Hostinger keys
 - Restores from that backup on each fresh deploy
-- Auto-configures NextAuth secret/URL and default admin login
-
-Default admin login:
-
-- Email: `admin@mcso.local`
-- Password: `MCSOAdmin2026!`
+- Auto-configures NextAuth secret/URL
+- On first visit to `/admin`, you create your own username and password
+- Change credentials anytime under **Admin → Settings**
 
 ## Local development
 
@@ -28,7 +25,7 @@ npm run db:setup
 npm run dev
 ```
 
-Optional: copy `.env.example` and set `SUPABASE_URL` / `SUPABASE_API_KEY` to test Storage sync.
+Then open http://localhost:3000/admin/setup to create the admin account.
 
 ## Stack
 

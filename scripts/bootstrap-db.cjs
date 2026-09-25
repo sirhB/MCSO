@@ -17,7 +17,7 @@ process.env.NEXTAUTH_SECRET =
   process.env.SUPABASE_API_KEY ||
   "mcso-hostinger-default-nextauth-secret";
 process.env.ADMIN_EMAIL = process.env.ADMIN_EMAIL || "admin@mcso.local";
-process.env.ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "MCSOAdmin2026!";
+process.env.ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "";
 process.env.ADMIN_NAME = process.env.ADMIN_NAME || "MCSO Admin";
 
 mkdirSync(path.join(process.cwd(), "data"), { recursive: true });

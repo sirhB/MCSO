@@ -11,6 +11,7 @@ const links = [
   { href: "/admin/contacts", label: "Contact Book" },
   { href: "/admin/gallery", label: "Gallery" },
   { href: "/admin/editor", label: "Site Editor" },
+  { href: "/admin/settings", label: "Settings" },
 ];
 
 export function AdminNav() {

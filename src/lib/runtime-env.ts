@@ -24,7 +24,8 @@ export function ensureRuntimeEnv() {
     process.env.ADMIN_EMAIL = "admin@mcso.local";
   }
   if (!process.env.ADMIN_PASSWORD) {
-    process.env.ADMIN_PASSWORD = "MCSOAdmin2026!";
+    // Only used if an env-based seed override is added later; first-run uses /admin/setup
+    process.env.ADMIN_PASSWORD = "";
   }
   if (!process.env.ADMIN_NAME) {
     process.env.ADMIN_NAME = "MCSO Admin";
