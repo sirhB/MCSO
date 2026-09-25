@@ -50,3 +50,9 @@ prisma/*.db
 prisma/*.db-journal
 /public/uploads/*
 !/public/uploads/.gitkeep
+
+# prisma agent skill noise
+.agents/
+.claude/
+.windsurf/
+skills-lock.json
