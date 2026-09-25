@@ -42,7 +42,11 @@ async function main() {
   const pageJson = JSON.stringify(defaultHomeData);
   await prisma.sitePage.upsert({
     where: { slug: "home" },
-    update: {},
+    update: {
+      draftData: pageJson,
+      publishedData: pageJson,
+      publishedAt: new Date(),
+    },
     create: {
       slug: "home",
       title: "MCSO Security Group",

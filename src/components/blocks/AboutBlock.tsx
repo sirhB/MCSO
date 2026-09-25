@@ -18,6 +18,7 @@ type Props = {
 export function AboutBlock({ sectionId, eyebrow, title, chapters }: Props) {
   return (
     <section id={sectionId || "about"} className="msco-about">
+      <div className="msco-about__glow" aria-hidden />
       <div className="msco-about__intro">
         <p className="msco-eyebrow">{eyebrow}</p>
         <h2>{title}</h2>
@@ -33,6 +34,9 @@ export function AboutBlock({ sectionId, eyebrow, title, chapters }: Props) {
               <img src={chapter.image} alt={chapter.title} />
             </div>
             <div className="msco-chapter__copy">
+              <span className="msco-chapter__index">
+                {String(index + 1).padStart(2, "0")}
+              </span>
               <span className="msco-chapter__tag">{chapter.tag}</span>
               <h3>{chapter.title}</h3>
               <p>{chapter.description}</p>

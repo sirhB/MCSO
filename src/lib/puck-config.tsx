@@ -18,6 +18,7 @@ export type MCSOProps = {
     ctaHref: string;
   };
   Hero: {
+    brandName?: string;
     subtitle: string;
     title: string;
     titleAccent: string;
@@ -126,6 +127,7 @@ export const puckConfig: Config<MCSOProps> = {
     Hero: {
       label: "Hero Banner",
       fields: {
+        brandName: { type: "text", label: "Brand name (hero lockup)" },
         subtitle: { type: "text", label: "Small top line" },
         title: { type: "text", label: "Main headline" },
         titleAccent: { type: "text", label: "Gold accent line" },
@@ -137,6 +139,7 @@ export const puckConfig: Config<MCSOProps> = {
         secondaryHref: { type: "text", label: "Secondary button link" },
       },
       defaultProps: {
+        brandName: "MCSO",
         subtitle: "Licensed & Insured",
         title: "The Standard of",
         titleAccent: "Professional Protection.",
