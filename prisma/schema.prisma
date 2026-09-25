@@ -2,10 +2,10 @@ generator client {
   provider = "prisma-client-js"
 }
 
-// Local agent/dev uses SQLite. For Vercel production, switch provider to
-// "postgresql" and set DATABASE_URL to a Neon/Supabase Postgres URL.
+// Supabase Postgres (Hostinger). Set DATABASE_URL to your Supabase connection URI.
+// Optional DIRECT_URL is used for migrations when DATABASE_URL points at the pooler.
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
