@@ -19,6 +19,7 @@ async function main() {
     });
   }
 
+  // Always restore the full default catalog when missing or incomplete
   const galleryCount = await prisma.galleryImage.count();
   if (galleryCount < DEFAULT_GALLERY.length) {
     await prisma.galleryImage.deleteMany({});
