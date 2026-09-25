@@ -4,7 +4,7 @@
  */
 export function ensureRuntimeEnv() {
   if (!process.env.DATABASE_URL) {
-    process.env.DATABASE_URL = "file:./data/prod.db";
+    process.env.DATABASE_URL = "file:../data/prod.db";
   }
 
   if (!process.env.NEXTAUTH_SECRET) {

@@ -7,10 +7,10 @@
     "build": "node scripts/bootstrap-db.cjs && next build",
     "start": "next start",
     "lint": "eslint",
-    "db:push": "DATABASE_URL=\"file:./data/prod.db\" prisma db push",
-    "db:seed": "DATABASE_URL=\"file:./data/prod.db\" tsx prisma/seed.ts",
+    "db:push": "DATABASE_URL=\"file:../data/prod.db\" prisma db push",
+    "db:seed": "DATABASE_URL=\"file:../data/prod.db\" tsx prisma/seed.ts",
     "db:setup": "node scripts/bootstrap-db.cjs",
-    "postinstall": "DATABASE_URL=\"file:./data/prod.db\" prisma generate"
+    "postinstall": "DATABASE_URL=\"file:../data/prod.db\" prisma generate"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

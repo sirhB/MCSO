@@ -11,7 +11,7 @@ const { spawnSync } = require("child_process");
 const path = require("path");
 
 process.env.DATABASE_URL =
-  process.env.DATABASE_URL || "file:./data/prod.db";
+  process.env.DATABASE_URL || "file:../data/prod.db";
 process.env.NEXTAUTH_SECRET =
   process.env.NEXTAUTH_SECRET ||
   process.env.SUPABASE_API_KEY ||
