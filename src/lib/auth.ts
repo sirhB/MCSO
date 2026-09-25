@@ -1,9 +1,14 @@
+import "@/lib/runtime-env";
 import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { compare } from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 
 export const authOptions: NextAuthOptions = {
+  secret:
+    process.env.NEXTAUTH_SECRET ||
+    process.env.SUPABASE_API_KEY ||
+    "mcso-hostinger-default-nextauth-secret",
   session: { strategy: "jwt" },
   pages: {
     signIn: "/admin/login",

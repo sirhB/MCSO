@@ -3,14 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
-    "build": "prisma generate && prisma db push && tsx prisma/seed.ts && next build",
+    "dev": "node scripts/bootstrap-db.cjs && next dev --turbopack",
+    "build": "node scripts/bootstrap-db.cjs && next build",
     "start": "next start",
     "lint": "eslint",
-    "db:push": "prisma db push",
-    "db:seed": "tsx prisma/seed.ts",
-    "db:setup": "prisma db push && tsx prisma/seed.ts",
-    "postinstall": "prisma generate"
+    "db:push": "DATABASE_URL=\"file:./data/prod.db\" prisma db push",
+    "db:seed": "DATABASE_URL=\"file:./data/prod.db\" tsx prisma/seed.ts",
+    "db:setup": "node scripts/bootstrap-db.cjs",
+    "postinstall": "DATABASE_URL=\"file:./data/prod.db\" prisma generate"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

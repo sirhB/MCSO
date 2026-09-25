@@ -34,6 +34,8 @@ export async function POST(req: NextRequest) {
       sortOrder: Number(body.sortOrder || 0),
     },
   });
+  const { scheduleBackup } = await import("@/lib/backup");
+  scheduleBackup();
   return NextResponse.json({ item }, { status: 201 });
 }
 
@@ -44,5 +46,7 @@ export async function DELETE(req: NextRequest) {
   const id = searchParams.get("id");
   if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
   await prisma.galleryImage.delete({ where: { id } });
+  const { scheduleBackup } = await import("@/lib/backup");
+  scheduleBackup();
   return NextResponse.json({ ok: true });
 }

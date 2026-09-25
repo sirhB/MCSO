@@ -2,10 +2,10 @@ generator client {
   provider = "prisma-client-js"
 }
 
-// Supabase Postgres (Hostinger). Set DATABASE_URL to your Supabase connection URI.
-// Optional DIRECT_URL is used for migrations when DATABASE_URL points at the pooler.
+// Zero-config Hostinger: SQLite file on disk. Durable copies sync to Supabase Storage
+// using only SUPABASE_URL + SUPABASE_API_KEY (no DATABASE_URL required).
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -29,18 +29,18 @@ model SitePage {
 }
 
 model Inquiry {
-  id            String         @id @default(cuid())
+  id            String        @id @default(cuid())
   name          String
   email         String
   phone         String?
   message       String
-  status        String         @default("NEW")
+  status        String        @default("NEW")
   notes         String?
   contactId     String?
-  contact       Contact?       @relation(fields: [contactId], references: [id])
+  contact       Contact?      @relation(fields: [contactId], references: [id])
   statusHistory StatusEvent[]
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
 }
 
 model StatusEvent {

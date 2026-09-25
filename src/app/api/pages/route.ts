@@ -53,6 +53,9 @@ export async function PUT(req: NextRequest) {
     },
   });
 
+  const { scheduleBackup } = await import("@/lib/backup");
+  scheduleBackup();
+
   return NextResponse.json({
     ok: true,
     publishedAt: page.publishedAt,

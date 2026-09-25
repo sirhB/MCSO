@@ -1,12 +1,16 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
-let client: SupabaseClient | null = null;
+let client: SupabaseClient | null | undefined;
 
-/** Typed Supabase client (Hostinger-injected SUPABASE_URL + SUPABASE_API_KEY). */
+/** Supabase client from Hostinger-injected SUPABASE_URL + SUPABASE_API_KEY. */
 export function getSupabase(): SupabaseClient | null {
+  if (client !== undefined) return client;
   const url = process.env.SUPABASE_URL;
   const key = process.env.SUPABASE_API_KEY;
-  if (!url || !key) return null;
-  if (!client) client = createClient(url, key);
+  if (!url || !key) {
+    client = null;
+    return client;
+  }
+  client = createClient(url, key);
   return client;
 }
