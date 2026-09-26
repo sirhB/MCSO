@@ -19,7 +19,11 @@ async function main() {
     });
   }
 
-  // Always restore the full default catalog when missing or incomplete
+  // Drop legacy per-template pages if present
+  await prisma.sitePage.deleteMany({
+    where: { slug: { in: ["template-editorial", "template-authority"] } },
+  });
+
   const galleryCount = await prisma.galleryImage.count();
   if (galleryCount < DEFAULT_GALLERY.length) {
     await prisma.galleryImage.deleteMany({});

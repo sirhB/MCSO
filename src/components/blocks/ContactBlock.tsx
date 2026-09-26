@@ -54,7 +54,7 @@ export function ContactBlock({
   return (
     <section id={sectionId || "contact"} className="msco-contact">
       <div className="msco-contact__grid">
-        <div>
+        <div className="msco-contact__intro">
           <p className="msco-eyebrow">Consultation</p>
           <h2>{title}</h2>
           <p className="msco-contact__desc">{description}</p>

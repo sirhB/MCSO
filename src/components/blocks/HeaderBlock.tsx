@@ -19,6 +19,7 @@ export function HeaderBlock({ logoSrc, ctaLabel, ctaHref }: Props) {
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -36,6 +37,7 @@ export function HeaderBlock({ logoSrc, ctaLabel, ctaHref }: Props) {
       const doc = document.documentElement;
       const max = doc.scrollHeight - doc.clientHeight;
       setProgress(max > 0 ? (doc.scrollTop / max) * 100 : 0);
+      setScrolled(doc.scrollTop > 24);
     }
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -75,7 +77,7 @@ export function HeaderBlock({ logoSrc, ctaLabel, ctaHref }: Props) {
         style={{ width: `${progress}%` }}
         aria-hidden
       />
-      <header className={`msco-header ${open ? "is-open" : ""}`}>
+      <header className={`msco-header ${open ? "is-open" : ""} ${scrolled ? "is-scrolled" : ""}`}>
         <a href="#top" className="msco-header__brand" aria-label="MCSO home" onClick={closeMenu}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={logoSrc} alt="MCSO" />
