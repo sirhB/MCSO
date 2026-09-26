@@ -32,7 +32,7 @@ function run(cmd, args) {
 }
 
 run("npx", ["prisma", "generate"]);
-run("npx", ["prisma", "db", "push"]);
+run("npx", ["prisma", "db", "push", "--accept-data-loss"]);
 run("npx", ["tsx", "prisma/seed.ts"]);
 
 const syncScript = path.join(process.cwd(), "scripts", "sync-supabase.ts");

@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { useTemplate } from "@/lib/template-context";
 
 type Props = {
   logoSrc: string;
@@ -17,7 +16,6 @@ const NAV_LINKS = [
 ];
 
 export function HeaderBlock({ logoSrc, ctaLabel, ctaHref }: Props) {
-  const template = useTemplate();
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -79,9 +77,7 @@ export function HeaderBlock({ logoSrc, ctaLabel, ctaHref }: Props) {
         style={{ width: `${progress}%` }}
         aria-hidden
       />
-      <header
-        className={`msco-header ${open ? "is-open" : ""} ${scrolled ? "is-scrolled" : ""} ${template === "authority" ? "msco-header--authority" : ""}`}
-      >
+      <header className={`msco-header ${open ? "is-open" : ""} ${scrolled ? "is-scrolled" : ""}`}>
         <a href="#top" className="msco-header__brand" aria-label="MCSO home" onClick={closeMenu}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={logoSrc} alt="MCSO" />

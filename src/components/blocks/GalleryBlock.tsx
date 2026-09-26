@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { defaultGalleryAsApiItems } from "@/lib/default-gallery";
-import { useTemplate } from "@/lib/template-context";
 
 type GalleryItem = {
   id: string;
@@ -27,7 +26,6 @@ export function GalleryBlock({
   useDatabase,
   categories,
 }: Props) {
-  const template = useTemplate();
   const fallback = useMemo(() => defaultGalleryAsApiItems(), []);
   const [items, setItems] = useState<GalleryItem[]>(fallback);
   const [active, setActive] = useState<string>("All");
@@ -67,10 +65,7 @@ export function GalleryBlock({
   );
 
   return (
-    <section
-      id={sectionId || "gallery"}
-      className={`msco-gallery ${template === "authority" ? "msco-gallery--authority" : ""}`}
-    >
+    <section id={sectionId || "gallery"} className="msco-gallery">
       <div className="msco-section-head">
         <h2>{title}</h2>
         <p>{description}</p>

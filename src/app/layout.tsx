@@ -1,35 +1,18 @@
 import type { Metadata } from "next";
-import {
-  Cormorant_Garamond,
-  Figtree,
-  Fraunces,
-  Manrope,
-} from "next/font/google";
+import { Figtree, Fraunces } from "next/font/google";
 import { Providers } from "@/components/Providers";
 import "./globals.css";
 
-const editorialDisplay = Cormorant_Garamond({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  variable: "--font-editorial-display",
-});
-
-const editorialBody = Manrope({
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700", "800"],
-  variable: "--font-editorial-body",
-});
-
-const authorityDisplay = Fraunces({
+const display = Fraunces({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
-  variable: "--font-authority-display",
+  variable: "--font-display",
 });
 
-const authorityBody = Figtree({
+const body = Figtree({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "800"],
-  variable: "--font-authority-body",
+  variable: "--font-body",
 });
 
 export const metadata: Metadata = {
@@ -47,7 +30,7 @@ export const viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
-  themeColor: "#0a0a0c",
+  themeColor: "#ebe7df",
 };
 
 export default function RootLayout({
@@ -57,9 +40,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${editorialDisplay.variable} ${editorialBody.variable} ${authorityDisplay.variable} ${authorityBody.variable} antialiased`}
-      >
+      <body className={`${display.variable} ${body.variable} antialiased`}>
         <Providers>{children}</Providers>
       </body>
     </html>

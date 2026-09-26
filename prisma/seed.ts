@@ -1,65 +1,27 @@
 import { PrismaClient } from "@prisma/client";
+import { defaultHomeData } from "../src/lib/default-page-data";
 import { DEFAULT_GALLERY } from "../src/lib/default-gallery";
-import {
-  ACTIVE_TEMPLATE_KEY,
-  DEFAULT_TEMPLATE_ID,
-  DESIGN_TEMPLATES,
-} from "../src/lib/design-templates";
 
 const prisma = new PrismaClient();
 
 async function main() {
-  const legacyHome = await prisma.sitePage.findUnique({ where: { slug: "home" } });
-
-  for (const template of DESIGN_TEMPLATES) {
-    const existing = await prisma.sitePage.findUnique({
-      where: { slug: template.pageSlug },
-    });
-    if (existing) continue;
-
-    const seedJson =
-      template.id === "editorial" && legacyHome
-        ? legacyHome.publishedData || legacyHome.draftData
-        : JSON.stringify(template.defaultData);
-
+  const pageJson = JSON.stringify(defaultHomeData);
+  const existingPage = await prisma.sitePage.findUnique({ where: { slug: "home" } });
+  if (!existingPage) {
     await prisma.sitePage.create({
       data: {
-        slug: template.pageSlug,
-        title: `MCSO — ${template.name}`,
-        draftData: seedJson,
-        publishedData: seedJson,
+        slug: "home",
+        title: "MCSO Security Group",
+        draftData: pageJson,
+        publishedData: pageJson,
         publishedAt: new Date(),
       },
     });
   }
 
-  // Keep legacy `home` in sync with editorial for older bookmarks/tools.
-  const editorial = await prisma.sitePage.findUnique({
-    where: { slug: "template-editorial" },
-  });
-  if (editorial) {
-    await prisma.sitePage.upsert({
-      where: { slug: "home" },
-      update: {
-        title: editorial.title,
-        draftData: editorial.draftData,
-        publishedData: editorial.publishedData,
-        publishedAt: editorial.publishedAt,
-      },
-      create: {
-        slug: "home",
-        title: editorial.title,
-        draftData: editorial.draftData,
-        publishedData: editorial.publishedData,
-        publishedAt: editorial.publishedAt ?? new Date(),
-      },
-    });
-  }
-
-  await prisma.siteSetting.upsert({
-    where: { key: ACTIVE_TEMPLATE_KEY },
-    update: {},
-    create: { key: ACTIVE_TEMPLATE_KEY, value: DEFAULT_TEMPLATE_ID },
+  // Drop legacy per-template pages if present
+  await prisma.sitePage.deleteMany({
+    where: { slug: { in: ["template-editorial", "template-authority"] } },
   });
 
   const galleryCount = await prisma.galleryImage.count();
@@ -71,7 +33,6 @@ async function main() {
   const userCount = await prisma.user.count();
   const finalCount = await prisma.galleryImage.count();
   console.log("Seed complete.");
-  console.log(`Design templates: ${DESIGN_TEMPLATES.map((t) => t.id).join(", ")}`);
   console.log(`Gallery images: ${finalCount}`);
   if (userCount === 0) {
     console.log("No admin yet — visit /admin/setup to create your username and password.");

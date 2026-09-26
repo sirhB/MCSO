@@ -1,55 +1,25 @@
 "use client";
 
-import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import { Puck, type Data } from "@puckeditor/core";
 import "@puckeditor/core/puck.css";
 import { puckConfig, type MCSOProps } from "@/lib/puck-config";
-import {
-  DESIGN_TEMPLATES,
-  getTemplateMeta,
-  isDesignTemplateId,
-  type DesignTemplateId,
-} from "@/lib/design-templates";
-import { TemplateProvider } from "@/lib/template-context";
+import { defaultHomeData } from "@/lib/default-page-data";
 
-function EditorInner() {
-  const searchParams = useSearchParams();
-  const requested = searchParams.get("template");
-  const [templateId, setTemplateId] = useState<DesignTemplateId>(
-    requested && isDesignTemplateId(requested) ? requested : "editorial",
-  );
+export default function EditorPage() {
   const [data, setData] = useState<Data<MCSOProps> | null>(null);
   const [status, setStatus] = useState("");
   const [busy, setBusy] = useState(false);
 
-  const meta = useMemo(() => getTemplateMeta(templateId), [templateId]);
-
   useEffect(() => {
-    if (requested && isDesignTemplateId(requested) && requested !== templateId) {
-      setTemplateId(requested);
-    }
-  }, [requested, templateId]);
-
-  useEffect(() => {
-    let cancelled = false;
-    setData(null);
-    setStatus("");
-    fetch(`/api/pages?slug=${encodeURIComponent(meta.pageSlug)}`)
+    fetch("/api/pages?slug=home")
       .then((r) => r.json())
       .then((payload) => {
-        if (!cancelled) {
-          setData(payload.page?.draftData || meta.defaultData);
-        }
+        setData(payload.page?.draftData || defaultHomeData);
       })
-      .catch(() => {
-        if (!cancelled) setData(meta.defaultData);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [meta]);
+      .catch(() => setData(defaultHomeData));
+  }, []);
 
   const save = useCallback(
     async (next: Data<MCSOProps>, publish: boolean) => {
@@ -59,8 +29,8 @@ function EditorInner() {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          slug: meta.pageSlug,
-          title: `MCSO — ${meta.name}`,
+          slug: "home",
+          title: "MCSO Security Group",
           data: next,
           publish,
         }),
@@ -73,11 +43,11 @@ function EditorInner() {
       setData(next);
       setStatus(
         publish
-          ? `Published “${meta.name}”. Activate it under Design templates to make it live.`
+          ? "Published! The live website is updated."
           : "Draft saved. Click Publish when ready.",
       );
     },
-    [meta],
+    [],
   );
 
   if (!data) {
@@ -94,30 +64,10 @@ function EditorInner() {
         <div>
           <h1>Website Editor</h1>
           <p className="editor-topbar__hint" style={{ margin: 0, color: "#a8a29e", fontSize: "0.9rem" }}>
-            Editing <strong style={{ color: "#f5f2ea" }}>{meta.name}</strong> — each
-            template has its own content. Drag blocks, then Publish.
+            Drag blocks from the left. Click any section to edit text and images. Large Publish button when done.
           </p>
         </div>
         <div className="actions">
-          <label className="editor-template-picker">
-            <span>Template</span>
-            <select
-              value={templateId}
-              onChange={(e) => {
-                const next = e.target.value;
-                if (isDesignTemplateId(next)) setTemplateId(next);
-              }}
-            >
-              {DESIGN_TEMPLATES.map((t) => (
-                <option key={t.id} value={t.id}>
-                  {t.name}
-                </option>
-              ))}
-            </select>
-          </label>
-          <Link href="/admin/designs" className="admin-btn admin-btn--ghost" style={{ color: "#fff", borderColor: "#44403c" }}>
-            Designs
-          </Link>
           <Link href="/admin" className="admin-btn admin-btn--ghost" style={{ color: "#fff", borderColor: "#44403c" }}>
             Back to admin
           </Link>
@@ -136,7 +86,7 @@ function EditorInner() {
             disabled={busy}
             onClick={() => save(data, true)}
           >
-            Publish template
+            Publish to website
           </button>
         </div>
       </div>
@@ -146,35 +96,17 @@ function EditorInner() {
         </div>
       ) : null}
       <div className="editor-frame">
-        <TemplateProvider templateId={templateId}>
-          <div className="msco-site" data-template={templateId}>
-            <Puck
-              config={puckConfig}
-              data={data}
-              onChange={(next) => setData(next)}
-              onPublish={async (next) => {
-                await save(next, true);
-              }}
-              headerPath="/"
-              iframe={{ enabled: false }}
-            />
-          </div>
-        </TemplateProvider>
+        <Puck
+          config={puckConfig}
+          data={data}
+          onChange={(next) => setData(next)}
+          onPublish={async (next) => {
+            await save(next, true);
+          }}
+          headerPath="/"
+          iframe={{ enabled: false }}
+        />
       </div>
     </div>
-  );
-}
-
-export default function EditorPage() {
-  return (
-    <Suspense
-      fallback={
-        <div style={{ padding: "2rem", background: "#1c1917", color: "#fff", minHeight: "100vh" }}>
-          Loading site editor…
-        </div>
-      }
-    >
-      <EditorInner />
-    </Suspense>
   );
 }

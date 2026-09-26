@@ -49,9 +49,6 @@ export default async function AdminDashboardPage() {
         <Link href="/admin/editor" className="admin-btn admin-btn--gold">
           Edit website
         </Link>
-        <Link href="/admin/designs" className="admin-btn">
-          Design templates
-        </Link>
         <Link href="/admin/inquiries" className="admin-btn">
           View inquiries
         </Link>
