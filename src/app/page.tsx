@@ -1,24 +1,29 @@
 import type { Data } from "@puckeditor/core";
-import { prisma } from "@/lib/prisma";
 import { type MCSOProps } from "@/lib/puck-config";
-import { defaultHomeData } from "@/lib/default-page-data";
 import { PageRenderer } from "@/components/PageRenderer";
+import { getPublishedTemplateData } from "@/lib/site-settings";
+import { isDesignTemplateId } from "@/lib/design-templates";
 
 export const dynamic = "force-dynamic";
 
-async function getPublishedHome(): Promise<Data<MCSOProps>> {
-  try {
-    const page = await prisma.sitePage.findUnique({ where: { slug: "home" } });
-    if (page?.publishedData) {
-      return JSON.parse(page.publishedData) as Data<MCSOProps>;
-    }
-  } catch {
-    // DB may not be ready during first build
-  }
-  return defaultHomeData;
-}
+type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
-export default async function HomePage() {
-  const data = await getPublishedHome();
-  return <PageRenderer data={data} />;
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams?: SearchParams;
+}) {
+  const params = (await searchParams) || {};
+  const previewRaw = params.previewTemplate;
+  const previewValue = Array.isArray(previewRaw) ? previewRaw[0] : previewRaw;
+  const previewId =
+    previewValue && isDesignTemplateId(previewValue) ? previewValue : undefined;
+
+  const { templateId, data } = await getPublishedTemplateData(previewId);
+  return (
+    <PageRenderer
+      data={data as Data<MCSOProps>}
+      templateId={templateId}
+    />
+  );
 }

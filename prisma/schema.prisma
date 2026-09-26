@@ -74,3 +74,10 @@ model GalleryImage {
   sortOrder   Int      @default(0)
   createdAt   DateTime @default(now())
 }
+
+/// Key/value site configuration (e.g. active design template).
+model SiteSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}

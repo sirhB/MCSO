@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import { useTemplate } from "@/lib/template-context";
 
 type Props = {
   sectionId: string;
@@ -17,6 +18,7 @@ export function ContactBlock({
   phone,
   location,
 }: Props) {
+  const template = useTemplate();
   const [status, setStatus] = useState<"idle" | "loading" | "ok" | "error">(
     "idle",
   );
@@ -52,9 +54,12 @@ export function ContactBlock({
   }
 
   return (
-    <section id={sectionId || "contact"} className="msco-contact">
+    <section
+      id={sectionId || "contact"}
+      className={`msco-contact ${template === "authority" ? "msco-contact--authority" : ""}`}
+    >
       <div className="msco-contact__grid">
-        <div>
+        <div className="msco-contact__intro">
           <p className="msco-eyebrow">Consultation</p>
           <h2>{title}</h2>
           <p className="msco-contact__desc">{description}</p>

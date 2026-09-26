@@ -1,5 +1,7 @@
 "use client";
 
+import { useTemplate } from "@/lib/template-context";
+
 type Props = {
   brandName?: string;
   subtitle: string;
@@ -14,6 +16,37 @@ type Props = {
 };
 
 export function HeroBlock(props: Props) {
+  const template = useTemplate();
+
+  if (template === "authority") {
+    return (
+      <section id="top" className="msco-hero msco-hero--authority">
+        <div
+          className="msco-hero__bg"
+          style={{ backgroundImage: `url(${props.backgroundImage})` }}
+        />
+        <div className="msco-hero__veil" />
+        <div className="msco-hero__content">
+          <p className="msco-hero__brand">{props.brandName || "MCSO"}</p>
+          <h1 className="msco-hero__title">
+            {props.title}{" "}
+            <em>{props.titleAccent}</em>
+          </h1>
+          <p className="msco-hero__desc">{props.description}</p>
+          <div className="msco-hero__actions">
+            <a href={props.primaryHref} className="msco-btn msco-btn--primary">
+              {props.primaryCta}
+            </a>
+            <a href={props.secondaryHref} className="msco-btn msco-btn--ghost">
+              {props.secondaryCta}
+            </a>
+          </div>
+          <p className="msco-hero__subtitle">{props.subtitle}</p>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section id="top" className="msco-hero">
       <div

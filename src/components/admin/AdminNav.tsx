@@ -10,6 +10,7 @@ const links = [
   { href: "/admin/inquiries", label: "Inquiries" },
   { href: "/admin/contacts", label: "Contact Book" },
   { href: "/admin/gallery", label: "Gallery" },
+  { href: "/admin/designs", label: "Design Templates" },
   { href: "/admin/editor", label: "Site Editor" },
   { href: "/admin/settings", label: "Settings" },
 ];
