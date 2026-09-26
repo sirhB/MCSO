@@ -48,22 +48,29 @@ export default function AdminDesignsPage() {
     setBusyId(id);
     setMessage("");
     setError("");
-    const res = await fetch("/api/templates", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ templateId: id }),
-    });
-    const data = await res.json().catch(() => ({}));
-    setBusyId(null);
-    if (!res.ok) {
-      setError(data.error || "Could not activate template.");
-      return;
+    try {
+      const res = await fetch("/api/templates", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({ templateId: id }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setError(data.error || "Could not activate template.");
+        return;
+      }
+      setActiveTemplate(id);
+      setTemplates((prev) =>
+        prev.map((t) => ({ ...t, isActive: t.id === id })),
+      );
+      const name = templates.find((t) => t.id === id)?.name || id;
+      setMessage(`${name} is now live.`);
+    } catch {
+      setError("Network error — could not activate template.");
+    } finally {
+      setBusyId(null);
     }
-    setActiveTemplate(id);
-    setTemplates((prev) =>
-      prev.map((t) => ({ ...t, isActive: t.id === id })),
-    );
-    setMessage(`${id === "authority" ? "Daylight Authority" : "Editorial Night"} is now live.`);
   }
 
   return (
