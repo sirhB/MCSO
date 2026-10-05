@@ -3,6 +3,9 @@ import { hash } from "bcryptjs";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { scheduleBackup } from "@/lib/backup";
+import { isDemoEmail, needsOwnerSetup } from "@/lib/admin-setup";
+
+export const dynamic = "force-dynamic";
 
 const setupSchema = z.object({
   name: z.string().min(2).max(80),
@@ -11,17 +14,27 @@ const setupSchema = z.object({
 });
 
 export async function POST(req: NextRequest) {
-  const existing = await prisma.user.count();
-  if (existing > 0) {
-    return NextResponse.json(
-      { error: "Admin account already exists. Please sign in." },
-      { status: 409 },
-    );
-  }
-
   try {
+    if (!(await needsOwnerSetup())) {
+      return NextResponse.json(
+        { error: "Admin account already exists. Please sign in." },
+        { status: 409 },
+      );
+    }
+
     const body = setupSchema.parse(await req.json());
     const email = body.email.toLowerCase().trim();
+
+    if (isDemoEmail(email)) {
+      return NextResponse.json(
+        {
+          error:
+            "That email is reserved for the demo login. Use a different email for your account.",
+        },
+        { status: 400 },
+      );
+    }
+
     const passwordHash = await hash(body.password, 10);
 
     const user = await prisma.user.create({
@@ -29,6 +42,7 @@ export async function POST(req: NextRequest) {
         name: body.name.trim(),
         email,
         passwordHash,
+        isDemo: false,
       },
     });
 
@@ -48,7 +62,11 @@ export async function POST(req: NextRequest) {
         { status: 400 },
       );
     }
-    console.error(err);
-    return NextResponse.json({ error: "Could not create admin account." }, { status: 500 });
+    console.error("[setup] create failed:", err);
+    const message =
+      err instanceof Error && /readonly|read-only|EACCES|SQLITE_READONLY/i.test(err.message)
+        ? "Server storage is not writable. Redeploy or contact support, then try again."
+        : "Could not create your account. Please try again.";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

@@ -14,8 +14,26 @@ That’s it. The app:
 - Syncs a durable backup to **Supabase Storage** with those two Hostinger keys
 - Restores from that backup on each fresh deploy
 - Auto-configures NextAuth secret/URL
-- On first visit to `/admin`, you create your own username and password
+- Seeds a **demo admin** for testing (see below)
+- Lets Michael create **one owner account** at `/admin/setup`
 - Change credentials anytime under **Admin → Settings**
+
+## Admin access
+
+### Demo login (dev / testing)
+
+| Field | Value |
+| --- | --- |
+| Email | `demo@mcso.local` |
+| Password | `MCSO-Demo-2026!` |
+
+Sign in at `/admin/login`.
+
+### Owner setup (Michael — one time)
+
+1. Open `/admin/setup` (also linked from the login page until setup is done).
+2. Choose username, email, and password (min 8 characters).
+3. This can only be done once. After that, use `/admin/login`.
 
 ## Local development
 
@@ -25,7 +43,8 @@ npm run db:setup
 npm run dev
 ```
 
-Then open http://localhost:3000/admin/setup to create the admin account.
+- Demo: http://localhost:3000/admin/login (`demo@mcso.local` / `MCSO-Demo-2026!`)
+- Owner setup: http://localhost:3000/admin/setup
 
 ## Stack
 

@@ -11,14 +11,16 @@ const { spawnSync } = require("child_process");
 const path = require("path");
 
 process.env.DATABASE_URL =
-  process.env.DATABASE_URL || "file:../data/prod.db";
+  process.env.DATABASE_URL && !process.env.DATABASE_URL.startsWith("file:../")
+    ? process.env.DATABASE_URL
+    : `file:${path.join(process.cwd(), "data", "prod.db")}`;
 process.env.NEXTAUTH_SECRET =
   process.env.NEXTAUTH_SECRET ||
   process.env.SUPABASE_API_KEY ||
   "mcso-hostinger-default-nextauth-secret";
-process.env.ADMIN_EMAIL = process.env.ADMIN_EMAIL || "admin@mcso.local";
-process.env.ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "";
-process.env.ADMIN_NAME = process.env.ADMIN_NAME || "MCSO Admin";
+process.env.ADMIN_EMAIL = process.env.ADMIN_EMAIL || "demo@mcso.local";
+process.env.ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "MCSO-Demo-2026!";
+process.env.ADMIN_NAME = process.env.ADMIN_NAME || "Demo Admin";
 
 mkdirSync(path.join(process.cwd(), "data"), { recursive: true });
 
@@ -33,9 +35,12 @@ function run(cmd, args) {
 
 run("npx", ["prisma", "generate"]);
 run("npx", ["prisma", "db", "push", "--accept-data-loss"]);
-run("npx", ["tsx", "prisma/seed.ts"]);
 
 const syncScript = path.join(process.cwd(), "scripts", "sync-supabase.ts");
-run("npx", ["tsx", syncScript]);
+// Restore durable snapshot before seeding so owner/CMS data is not skipped.
+run("npx", ["tsx", syncScript, "restore"]);
+run("npx", ["tsx", "prisma/seed.ts"]);
+// Backup after seed so demo + defaults are durable on first boot.
+run("npx", ["tsx", syncScript, "backup"]);
 
 console.log("DB bootstrap complete.");

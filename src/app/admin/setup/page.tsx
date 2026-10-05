@@ -80,8 +80,10 @@ export default function AdminSetupPage() {
       <form className="login-card" onSubmit={onSubmit}>
         <h1>Create your admin account</h1>
         <p>
-          Welcome to MCSO. Choose a username, email, and password you will use
-          to manage the website. You can change these later in Settings.
+          Welcome to MCSO. Create Michael&apos;s owner login (one-time setup).
+          You can change these details later in Settings. A separate demo login
+          is available for testing on the{" "}
+          <a href="/admin/login">sign-in page</a>.
         </p>
         <label>
           Username

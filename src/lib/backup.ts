@@ -98,6 +98,8 @@ export async function restoreFromSupabaseIfEmpty() {
     prisma.sitePage.count(),
     prisma.galleryImage.count(),
   ]);
+  // Demo-only users still count as "empty" for owner restore purposes only when
+  // there is also no page/gallery content. Prefer restoring a full snapshot.
   if (users > 0 || pages > 0 || gallery > 0) return false;
 
   const snapshot = await downloadSnapshot();
@@ -114,7 +116,12 @@ export async function restoreFromSupabaseIfEmpty() {
 
     if (snapshot.users?.length) {
       for (const row of snapshot.users) {
-        await prisma.user.create({ data: row as never });
+        const data = { ...(row as Record<string, unknown>) };
+        if (typeof data.isDemo !== "boolean") {
+          data.isDemo =
+            String(data.email || "").toLowerCase() === "demo@mcso.local";
+        }
+        await prisma.user.create({ data: data as never });
       }
     }
     if (snapshot.pages?.length) {
