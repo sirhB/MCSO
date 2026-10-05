@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -8,20 +9,16 @@ export default function AdminLoginPage() {
   const router = useRouter();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [checking, setChecking] = useState(true);
+  const [needsSetup, setNeedsSetup] = useState(false);
 
   useEffect(() => {
     fetch("/api/setup/status")
       .then((r) => r.json())
       .then((data) => {
-        if (data.needsSetup) {
-          router.replace("/admin/setup");
-          return;
-        }
-        setChecking(false);
+        setNeedsSetup(Boolean(data.needsSetup));
       })
-      .catch(() => setChecking(false));
-  }, [router]);
+      .catch(() => setNeedsSetup(false));
+  }, []);
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -42,21 +39,18 @@ export default function AdminLoginPage() {
     router.refresh();
   }
 
-  if (checking) {
-    return (
-      <div className="login-page">
-        <div className="login-card">
-          <p>Loading…</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="login-page">
       <form className="login-card" onSubmit={onSubmit}>
         <h1>MCSO Admin</h1>
         <p>Sign in to manage inquiries, contacts, and the website editor.</p>
+        {needsSetup ? (
+          <p>
+            Owner account not created yet.{" "}
+            <Link href="/admin/setup">Create Michael&apos;s account</Link>
+            {" "}or sign in with the demo login.
+          </p>
+        ) : null}
         <label>
           Email
           <input name="email" type="email" required autoComplete="username" />
