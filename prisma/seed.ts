@@ -2,23 +2,22 @@ import { PrismaClient } from "@prisma/client";
 import { hash } from "bcryptjs";
 import { defaultHomeData } from "../src/lib/default-page-data";
 import { DEFAULT_GALLERY } from "../src/lib/default-gallery";
-import { DEMO_ADMIN } from "../src/lib/admin-accounts";
+import { OWNER_ADMIN } from "../src/lib/admin-accounts";
 
 const prisma = new PrismaClient();
 
-async function ensureDemoAdmin() {
-  const existing = await prisma.user.findUnique({
-    where: { email: DEMO_ADMIN.email },
-  });
-  const passwordHash = await hash(DEMO_ADMIN.password, 10);
+async function ensureOwnerAdmin() {
+  const email = OWNER_ADMIN.email.toLowerCase();
+  const passwordHash = await hash(OWNER_ADMIN.password, 10);
+  const existing = await prisma.user.findUnique({ where: { email } });
 
   if (existing) {
     await prisma.user.update({
       where: { id: existing.id },
       data: {
-        name: DEMO_ADMIN.name,
+        name: OWNER_ADMIN.name,
         passwordHash,
-        isDemo: true,
+        isDemo: false,
       },
     });
     return;
@@ -26,10 +25,10 @@ async function ensureDemoAdmin() {
 
   await prisma.user.create({
     data: {
-      name: DEMO_ADMIN.name,
-      email: DEMO_ADMIN.email,
+      name: OWNER_ADMIN.name,
+      email,
       passwordHash,
-      isDemo: true,
+      isDemo: false,
     },
   });
 }
@@ -60,18 +59,16 @@ async function main() {
     await prisma.galleryImage.createMany({ data: DEFAULT_GALLERY });
   }
 
-  await ensureDemoAdmin();
+  await ensureOwnerAdmin();
 
   const ownerCount = await prisma.user.count({ where: { isDemo: false } });
   const finalCount = await prisma.galleryImage.count();
   console.log("Seed complete.");
   console.log(`Gallery images: ${finalCount}`);
-  console.log(`Demo admin: ${DEMO_ADMIN.email} / ${DEMO_ADMIN.password}`);
-  if (ownerCount === 0) {
-    console.log("No owner admin yet — visit /admin/setup so Michael can create his account.");
-  } else {
-    console.log(`Owner admin accounts: ${ownerCount}`);
-  }
+  console.log(
+    `Owner admin ready: ${OWNER_ADMIN.email} / ${OWNER_ADMIN.password} (username ${OWNER_ADMIN.name})`,
+  );
+  console.log(`Owner admin accounts: ${ownerCount}`);
 }
 
 main()

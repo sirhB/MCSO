@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { STATUS_LABELS, type InquiryStatus } from "@/lib/inquiry-status";
+import { inquiryMailto } from "@/lib/inquiry-mailto";
 
 export const dynamic = "force-dynamic";
 
@@ -15,7 +16,7 @@ export default async function AdminDashboardPage() {
     ]);
 
   const recent = await prisma.inquiry.findMany({
-    take: 5,
+    take: 8,
     orderBy: { createdAt: "desc" },
   });
 
@@ -23,7 +24,7 @@ export default async function AdminDashboardPage() {
     <>
       <h1>Dashboard</h1>
       <p className="lede">
-        Welcome. Use large buttons below — everything an admin needs in one place.
+        Welcome. Contact form submissions show under Inquiries — reply with one tap.
       </p>
 
       <div className="stat-grid">
@@ -46,11 +47,11 @@ export default async function AdminDashboardPage() {
       </div>
 
       <div className="admin-actions">
-        <Link href="/admin/editor" className="admin-btn admin-btn--gold">
-          Edit website
-        </Link>
-        <Link href="/admin/inquiries" className="admin-btn">
+        <Link href="/admin/inquiries" className="admin-btn admin-btn--gold">
           View inquiries
+        </Link>
+        <Link href="/admin/editor" className="admin-btn">
+          Edit website
         </Link>
         <Link href="/admin/contacts" className="admin-btn admin-btn--ghost">
           Open contact book
@@ -73,20 +74,36 @@ export default async function AdminDashboardPage() {
       </div>
 
       <div className="admin-card" style={{ marginTop: "1rem" }}>
-        <h2 style={{ marginTop: 0 }}>Recent inquiries</h2>
+        <h2 style={{ marginTop: 0 }}>Recent contact form submissions</h2>
         {recent.length === 0 ? (
-          <p>No inquiries yet.</p>
+          <p>No inquiries yet. Messages from the website contact form appear here.</p>
         ) : (
-          <ul style={{ margin: 0, paddingLeft: "1.1rem" }}>
+          <ul className="dashboard-inquiry-list">
             {recent.map((item) => (
-              <li key={item.id} style={{ marginBottom: "0.6rem" }}>
-                <strong>{item.name}</strong> — {item.email}
-                {item.phone ? ` · ${item.phone}` : ""} ·{" "}
-                {STATUS_LABELS[item.status as InquiryStatus] || item.status}
+              <li key={item.id}>
+                <div>
+                  <strong>{item.name}</strong>
+                  <span>
+                    {" "}
+                    — {STATUS_LABELS[item.status as InquiryStatus] || item.status}
+                  </span>
+                  <p>{item.message}</p>
+                  <small>
+                    {item.email}
+                    {item.phone ? ` · ${item.phone}` : ""} ·{" "}
+                    {new Date(item.createdAt).toLocaleString()}
+                  </small>
+                </div>
+                <a className="admin-btn admin-btn--gold" href={inquiryMailto(item)}>
+                  Reply by email
+                </a>
               </li>
             ))}
           </ul>
         )}
+        <p style={{ marginTop: "1rem" }}>
+          <Link href="/admin/inquiries">See all inquiries →</Link>
+        </p>
       </div>
     </>
   );

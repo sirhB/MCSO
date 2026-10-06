@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { inquiryMailto } from "@/lib/inquiry-mailto";
 
 type Contact = {
   id: string;
@@ -71,36 +72,46 @@ export default function ContactsPage() {
             </tr>
           </thead>
           <tbody>
-            {filtered.map((contact) => (
-              <tr key={contact.id}>
-                <td>
-                  <strong>{contact.name}</strong>
-                </td>
-                <td>
-                  <div>
-                    <a href={`mailto:${contact.email}`}>{contact.email}</a>
-                  </div>
-                  {contact.phone ? (
-                    <div>
-                      <a href={`tel:${contact.phone.replace(/\D/g, "")}`}>
-                        {contact.phone}
+            {filtered.map((contact) => {
+              const latest = contact.inquiries[0];
+              const mailHref = latest
+                ? inquiryMailto({
+                    name: contact.name,
+                    email: contact.email,
+                    message: latest.message,
+                  })
+                : `mailto:${contact.email}`;
+              return (
+                <tr key={contact.id}>
+                  <td>
+                    <strong>{contact.name}</strong>
+                  </td>
+                  <td>
+                    <div className="inquiry-list__actions">
+                      <a className="admin-btn admin-btn--gold" href={mailHref}>
+                        Reply by email
                       </a>
+                      {contact.phone ? (
+                        <a
+                          className="admin-btn admin-btn--ghost"
+                          href={`tel:${contact.phone.replace(/\D/g, "")}`}
+                        >
+                          Call
+                        </a>
+                      ) : null}
                     </div>
-                  ) : (
-                    <div style={{ color: "#a8a29e" }}>No phone</div>
-                  )}
-                </td>
-                <td>{contact.inquiries.length}</td>
-                <td style={{ maxWidth: 360 }}>
-                  {contact.inquiries[0]
-                    ? contact.inquiries[0].message.slice(0, 140)
-                    : "—"}
-                  {contact.inquiries[0] && contact.inquiries[0].message.length > 140
-                    ? "…"
-                    : ""}
-                </td>
-              </tr>
-            ))}
+                    <div style={{ marginTop: "0.45rem", fontSize: "0.92rem" }}>
+                      <a href={mailHref}>{contact.email}</a>
+                    </div>
+                  </td>
+                  <td>{contact.inquiries.length}</td>
+                  <td style={{ maxWidth: 360 }}>
+                    {latest ? latest.message.slice(0, 140) : "—"}
+                    {latest && latest.message.length > 140 ? "…" : ""}
+                  </td>
+                </tr>
+              );
+            })}
             {filtered.length === 0 ? (
               <tr>
                 <td colSpan={4}>No contacts yet. They appear when someone submits the form.</td>

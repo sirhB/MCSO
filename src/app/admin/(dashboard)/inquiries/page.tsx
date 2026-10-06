@@ -8,6 +8,7 @@ import {
   STATUS_LABELS,
   type InquiryStatus,
 } from "@/lib/inquiry-status";
+import { inquiryMailto } from "@/lib/inquiry-mailto";
 
 type Inquiry = {
   id: string;
@@ -32,10 +33,17 @@ export default function InquiriesPage() {
   const [inquiries, setInquiries] = useState<Inquiry[]>([]);
   const [selected, setSelected] = useState<Inquiry | null>(null);
   const [saving, setSaving] = useState(false);
+  const [loadError, setLoadError] = useState("");
 
   const load = useCallback(async () => {
+    setLoadError("");
     const res = await fetch("/api/inquiries");
-    const data = await res.json();
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      setLoadError(data.error || "Could not load inquiries.");
+      setInquiries([]);
+      return;
+    }
     setInquiries(data.inquiries || []);
   }, []);
 
@@ -87,11 +95,50 @@ export default function InquiriesPage() {
     <>
       <h1>Inquiries</h1>
       <p className="lede">
-        Track every lead from first message to won or lost. Click a card for
-        phone, email, and history.
+        Contact form submissions from the website appear here. Open one and tap
+        Reply by email to respond from your phone or computer.
       </p>
 
-      <h2 style={{ fontSize: "1.1rem", marginBottom: "0.5rem" }}>Inquiry flow</h2>
+      {loadError ? <p className="msco-form-error">{loadError}</p> : null}
+
+      <div className="inquiry-list" aria-label="All contact form submissions">
+        {inquiries.length === 0 && !loadError ? (
+          <p className="admin-card">No submissions yet. New contact form messages will show up here.</p>
+        ) : (
+          inquiries.map((item) => (
+            <article key={item.id} className="inquiry-list__item admin-card">
+              <div className="inquiry-list__meta">
+                <strong>{item.name}</strong>
+                <span className="inquiry-list__badge">
+                  {STATUS_LABELS[item.status as InquiryStatus] || item.status}
+                </span>
+              </div>
+              <p className="inquiry-list__preview">{item.message}</p>
+              <p className="inquiry-list__when">
+                {new Date(item.createdAt).toLocaleString()} · {item.email}
+                {item.phone ? ` · ${item.phone}` : ""}
+              </p>
+              <div className="inquiry-list__actions">
+                <a
+                  className="admin-btn admin-btn--gold"
+                  href={inquiryMailto(item)}
+                >
+                  Reply by email
+                </a>
+                <button
+                  type="button"
+                  className="admin-btn admin-btn--ghost"
+                  onClick={() => setSelected(item)}
+                >
+                  Open details
+                </button>
+              </div>
+            </article>
+          ))
+        )}
+      </div>
+
+      <h2 style={{ fontSize: "1.1rem", margin: "2rem 0 0.5rem" }}>Pipeline board</h2>
       <div className="flow-chart" aria-label="Inquiry status flowchart">
         {PIPELINE_FLOW.map((status, index) => (
           <div key={status} style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
@@ -148,7 +195,7 @@ export default function InquiriesPage() {
       </div>
 
       {selected ? (
-        <div className="admin-card" style={{ marginTop: "1.5rem" }}>
+        <div className="admin-card inquiry-detail" style={{ marginTop: "1.5rem" }}>
           <div style={{ display: "flex", justifyContent: "space-between", gap: "1rem", flexWrap: "wrap" }}>
             <div>
               <h2 style={{ margin: 0 }}>{selected.name}</h2>
@@ -165,10 +212,17 @@ export default function InquiriesPage() {
             </button>
           </div>
 
+          <a
+            className="admin-btn admin-btn--gold inquiry-reply"
+            href={inquiryMailto(selected)}
+          >
+            Reply by email
+          </a>
+
           <div style={{ display: "grid", gap: "0.5rem", margin: "1rem 0" }}>
             <div>
               <strong>Email: </strong>
-              <a href={`mailto:${selected.email}`}>{selected.email}</a>
+              <a href={inquiryMailto(selected)}>{selected.email}</a>
             </div>
             <div>
               <strong>Phone: </strong>

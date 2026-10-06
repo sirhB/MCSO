@@ -91,13 +91,13 @@ export function ensureRuntimeEnv() {
   }
 
   if (!process.env.ADMIN_EMAIL) {
-    process.env.ADMIN_EMAIL = "demo@mcso.local";
+    process.env.ADMIN_EMAIL = "mcsogroup@gmail.com";
   }
   if (!process.env.ADMIN_PASSWORD) {
-    process.env.ADMIN_PASSWORD = "MCSO-Demo-2026!";
+    process.env.ADMIN_PASSWORD = "changeme123";
   }
   if (!process.env.ADMIN_NAME) {
-    process.env.ADMIN_NAME = "Demo Admin";
+    process.env.ADMIN_NAME = "mcso";
   }
 }
 

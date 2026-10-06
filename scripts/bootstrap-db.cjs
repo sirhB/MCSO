@@ -28,9 +28,9 @@ process.env.NEXTAUTH_URL =
   process.env.NEXTAUTH_URL ||
   process.env.NEXT_PUBLIC_SITE_URL ||
   "https://mcsogroup.com";
-process.env.ADMIN_EMAIL = process.env.ADMIN_EMAIL || "demo@mcso.local";
-process.env.ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "MCSO-Demo-2026!";
-process.env.ADMIN_NAME = process.env.ADMIN_NAME || "Demo Admin";
+process.env.ADMIN_EMAIL = process.env.ADMIN_EMAIL || "mcsogroup@gmail.com";
+process.env.ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "changeme123";
+process.env.ADMIN_NAME = process.env.ADMIN_NAME || "mcso";
 
 mkdirSync(path.join(process.cwd(), "data"), { recursive: true });
 console.log("[bootstrap] SQLite DATABASE_URL =", process.env.DATABASE_URL);
