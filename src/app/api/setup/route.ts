@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { hash } from "bcryptjs";
 import { z } from "zod";
-import { prisma } from "@/lib/prisma";
+import { pingDatabase, prisma } from "@/lib/prisma";
 import { scheduleBackup } from "@/lib/backup";
 import { isDemoEmail, needsOwnerSetup } from "@/lib/admin-setup";
 
 export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
 const setupSchema = z.object({
   name: z.string().min(2).max(80),
@@ -13,11 +14,27 @@ const setupSchema = z.object({
   password: z.string().min(8).max(100),
 });
 
+function dbErrorMessage(err: unknown) {
+  const msg = err instanceof Error ? err.message : String(err);
+  if (/readonly|read-only|EACCES|SQLITE_READONLY/i.test(msg)) {
+    return "Server storage is not writable. Redeploy on Hostinger, then try again.";
+  }
+  if (/P1001|P1003|unable to open|does not exist|no such table/i.test(msg)) {
+    return "Database is not ready on the server. Redeploy (npm run build) so SQLite can be created, then try again.";
+  }
+  if (/postgres|mysql|prisma\/client/i.test(msg) && /url|provider|datasource/i.test(msg)) {
+    return "Host database URL conflict. This app needs SQLite; redeploy the latest build.";
+  }
+  return "Could not create your account. Please try again.";
+}
+
 export async function POST(req: NextRequest) {
   try {
+    await pingDatabase();
+
     if (!(await needsOwnerSetup())) {
       return NextResponse.json(
-        { error: "Admin account already exists. Please sign in." },
+        { error: "Admin account already exists. Please sign in at /admin/login." },
         { status: 409 },
       );
     }
@@ -63,10 +80,6 @@ export async function POST(req: NextRequest) {
       );
     }
     console.error("[setup] create failed:", err);
-    const message =
-      err instanceof Error && /readonly|read-only|EACCES|SQLITE_READONLY/i.test(err.message)
-        ? "Server storage is not writable. Redeploy or contact support, then try again."
-        : "Could not create your account. Please try again.";
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json({ error: dbErrorMessage(err) }, { status: 500 });
   }
 }

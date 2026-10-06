@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -9,18 +10,30 @@ export default function AdminSetupPage() {
   const [checking, setChecking] = useState(true);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [dbWarning, setDbWarning] = useState(false);
 
   useEffect(() => {
     fetch("/api/setup/status")
-      .then((r) => r.json())
-      .then((data) => {
+      .then(async (r) => {
+        const data = await r.json().catch(() => ({}));
+        if (!r.ok) {
+          setDbWarning(true);
+          setChecking(false);
+          return;
+        }
+        if (data.warning === "database-unavailable") {
+          setDbWarning(true);
+        }
         if (!data.needsSetup) {
           router.replace("/admin/login");
           return;
         }
         setChecking(false);
       })
-      .catch(() => setChecking(false));
+      .catch(() => {
+        setDbWarning(true);
+        setChecking(false);
+      });
   }, [router]);
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
@@ -47,7 +60,12 @@ export default function AdminSetupPage() {
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
       setLoading(false);
-      setError(data.error || "Could not create your account.");
+      setError(
+        data.error ||
+          (res.status >= 500
+            ? "Server database error. Try the demo login on /admin/login, or redeploy the latest build on Hostinger."
+            : "Could not create your account."),
+      );
       return;
     }
 
@@ -83,8 +101,14 @@ export default function AdminSetupPage() {
           Welcome to MCSO. Create Michael&apos;s owner login (one-time setup).
           You can change these details later in Settings. A separate demo login
           is available for testing on the{" "}
-          <a href="/admin/login">sign-in page</a>.
+          <Link href="/admin/login">sign-in page</Link>.
         </p>
+        {dbWarning ? (
+          <p className="msco-form-error">
+            Database check failed on the server. You can still try below, or use
+            the demo login after redeploying the latest build.
+          </p>
+        ) : null}
         <label>
           Username
           <input
