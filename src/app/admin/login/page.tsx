@@ -1,7 +1,6 @@
 "use client";
 
-import Link from "next/link";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
@@ -9,16 +8,6 @@ export default function AdminLoginPage() {
   const router = useRouter();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [needsSetup, setNeedsSetup] = useState(false);
-
-  useEffect(() => {
-    fetch("/api/setup/status")
-      .then((r) => r.json())
-      .then((data) => {
-        setNeedsSetup(Boolean(data.needsSetup));
-      })
-      .catch(() => setNeedsSetup(false));
-  }, []);
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -44,13 +33,6 @@ export default function AdminLoginPage() {
       <form className="login-card" onSubmit={onSubmit}>
         <h1>MCSO Admin</h1>
         <p>Sign in to manage inquiries, contacts, and the website editor.</p>
-        {needsSetup ? (
-          <p>
-            Owner account not created yet.{" "}
-            <Link href="/admin/setup">Create Michael&apos;s account</Link>
-            {" "}or sign in with the demo login.
-          </p>
-        ) : null}
         <label>
           Email
           <input name="email" type="email" required autoComplete="username" />

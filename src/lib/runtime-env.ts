@@ -6,8 +6,21 @@ import path from "path";
  * (injected when you connect the database). No manual DATABASE_URL / NEXTAUTH_* required.
  *
  * Kept self-contained (no local imports) because next.config.ts loads this file.
+ *
+ * Important: Hostinger may inject a Postgres DATABASE_URL when you "connect a
+ * database". This app uses SQLite + Supabase Storage, so we always force a
+ * local file: URL and ignore non-SQLite injected values.
  */
 function ensureWritableDatabaseUrl(): string {
+  const incoming = process.env.DATABASE_URL || "";
+  if (incoming && !incoming.startsWith("file:")) {
+    // Preserve for debugging; never use Postgres/MySQL with this Prisma schema.
+    process.env.MCSO_IGNORED_DATABASE_URL = incoming;
+    console.warn(
+      "[db] Ignoring non-SQLite DATABASE_URL from host (using local SQLite instead).",
+    );
+  }
+
   const preferredDir = path.join(process.cwd(), "data");
   const preferredDb = path.join(preferredDir, "prod.db");
   const fallbackDir = path.join("/tmp", "mcso-data");
@@ -32,7 +45,12 @@ function ensureWritableDatabaseUrl(): string {
     return `file:${preferredDb}`;
   }
 
-  fs.mkdirSync(fallbackDir, { recursive: true });
+  try {
+    fs.mkdirSync(fallbackDir, { recursive: true });
+  } catch {
+    // continue; canUse will report failure
+  }
+
   if (fs.existsSync(preferredDb) && !fs.existsSync(fallbackDb)) {
     try {
       fs.copyFileSync(preferredDb, fallbackDb);
@@ -40,16 +58,23 @@ function ensureWritableDatabaseUrl(): string {
       console.warn("[db] Could not copy SQLite to writable path:", err);
     }
   }
-  if (!canUse(fallbackDir, fallbackDb)) {
-    console.warn("[db] Writable SQLite path unavailable; using preferred path anyway.");
-    return process.env.DATABASE_URL || `file:${preferredDb}`;
+
+  if (canUse(fallbackDir, fallbackDb)) {
+    console.warn("[db] Using writable SQLite fallback:", fallbackDb);
+    return `file:${fallbackDb}`;
   }
-  console.warn("[db] Using writable SQLite fallback:", fallbackDb);
-  return `file:${fallbackDb}`;
+
+  // Last resort: still return a file URL (never a Postgres URL).
+  console.warn("[db] Writable SQLite path unavailable; using preferred path anyway.");
+  try {
+    fs.mkdirSync(preferredDir, { recursive: true });
+  } catch {
+    // ignore
+  }
+  return `file:${preferredDb}`;
 }
 
 export function ensureRuntimeEnv() {
-  // Resolve a writable absolute SQLite URL (falls back to /tmp when ./data is read-only).
   process.env.DATABASE_URL = ensureWritableDatabaseUrl();
 
   if (!process.env.NEXTAUTH_SECRET) {
@@ -62,18 +87,17 @@ export function ensureRuntimeEnv() {
     process.env.NEXTAUTH_URL =
       process.env.NEXT_PUBLIC_SITE_URL ||
       (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "") ||
-      "http://localhost:3000";
+      "https://mcsogroup.com";
   }
 
   if (!process.env.ADMIN_EMAIL) {
-    process.env.ADMIN_EMAIL = "demo@mcso.local";
+    process.env.ADMIN_EMAIL = "mcsogroup@gmail.com";
   }
   if (!process.env.ADMIN_PASSWORD) {
-    // Demo credentials are seeded in prisma/seed.ts; owner uses /admin/setup
-    process.env.ADMIN_PASSWORD = "MCSO-Demo-2026!";
+    process.env.ADMIN_PASSWORD = "changeme123";
   }
   if (!process.env.ADMIN_NAME) {
-    process.env.ADMIN_NAME = "Demo Admin";
+    process.env.ADMIN_NAME = "mcso";
   }
 }
 

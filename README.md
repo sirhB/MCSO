@@ -10,30 +10,26 @@ Marketing site + admin CMS for Michael Colon Security Organization LLC.
 
 That’s it. The app:
 
-- Uses local SQLite automatically (no `DATABASE_URL` to configure)
+- Uses local SQLite automatically (ignores a Hostinger Postgres `DATABASE_URL` if injected)
 - Syncs a durable backup to **Supabase Storage** with those two Hostinger keys
 - Restores from that backup on each fresh deploy
 - Auto-configures NextAuth secret/URL
-- Seeds a **demo admin** for testing (see below)
-- Lets Michael create **one owner account** at `/admin/setup`
+- Seeds Michael’s admin account on deploy
 - Change credentials anytime under **Admin → Settings**
 
 ## Admin access
 
-### Demo login (dev / testing)
+Sign in at `/admin/login`:
 
 | Field | Value |
 | --- | --- |
-| Email | `demo@mcso.local` |
-| Password | `MCSO-Demo-2026!` |
+| Username | `mcso` |
+| Email | `mcsogroup@gmail.com` |
+| Password | `changeme123` |
 
-Sign in at `/admin/login`.
+Change the password after first login (Settings). A short mobile walkthrough introduces the admin on first visit.
 
-### Owner setup (Michael — one time)
-
-1. Open `/admin/setup` (also linked from the login page until setup is done).
-2. Choose username, email, and password (min 8 characters).
-3. This can only be done once. After that, use `/admin/login`.
+Contact form submissions appear under **Inquiries** (and on the dashboard). Use **Reply by email** to open a ready-to-send mailto reply.
 
 ## Local development
 
@@ -43,8 +39,7 @@ npm run db:setup
 npm run dev
 ```
 
-- Demo: http://localhost:3000/admin/login (`demo@mcso.local` / `MCSO-Demo-2026!`)
-- Owner setup: http://localhost:3000/admin/setup
+Then open http://localhost:3000/admin/login
 
 ## Stack
 
