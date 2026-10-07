@@ -63,7 +63,7 @@ export default function AdminLoginPage() {
             textAlign: "center",
           }}
         >
-          Build 2026-10-07d · use mcsogroup@gmail.com
+          Build 2026-10-07e · change password after first login
         </p>
       </form>
     </div>
