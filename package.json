@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "node scripts/bootstrap-db.cjs && next dev --turbopack",
     "build": "node scripts/bootstrap-db.cjs && next build",
-    "start": "next start",
+    "start": "node scripts/bootstrap-db.cjs && next start",
     "lint": "eslint",
     "db:push": "DATABASE_URL=\"file:../data/prod.db\" prisma db push",
     "db:seed": "DATABASE_URL=\"file:../data/prod.db\" tsx prisma/seed.ts",

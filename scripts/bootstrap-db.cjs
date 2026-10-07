@@ -18,8 +18,25 @@ if (process.env.DATABASE_URL && !process.env.DATABASE_URL.startsWith("file:")) {
     "[bootstrap] Ignoring non-SQLite DATABASE_URL from host; using local SQLite.",
   );
 }
-const sqlitePath = path.join(process.cwd(), "data", "prod.db");
-process.env.DATABASE_URL = `file:${sqlitePath}`;
+const { pathToFileURL } = require("url");
+const { copyFileSync, existsSync } = require("fs");
+// Match runtime-env: in production prefer /tmp (Hostinger writable area).
+const useTmp = process.env.NODE_ENV === "production";
+const dataDir = useTmp
+  ? path.join("/tmp", "mcso-data")
+  : path.join(process.cwd(), "data");
+const sqlitePath = path.join(dataDir, "prod.db");
+const artifactDb = path.join(process.cwd(), "data", "prod.db");
+mkdirSync(dataDir, { recursive: true });
+mkdirSync(path.join(process.cwd(), "data"), { recursive: true });
+if (useTmp && existsSync(artifactDb) && !existsSync(sqlitePath)) {
+  try {
+    copyFileSync(artifactDb, sqlitePath);
+  } catch (err) {
+    console.warn("[bootstrap] Could not copy artifact DB to /tmp:", err);
+  }
+}
+process.env.DATABASE_URL = pathToFileURL(sqlitePath).href;
 process.env.NEXTAUTH_SECRET =
   process.env.NEXTAUTH_SECRET ||
   process.env.SUPABASE_API_KEY ||
@@ -32,7 +49,6 @@ process.env.ADMIN_EMAIL = process.env.ADMIN_EMAIL || "mcsogroup@gmail.com";
 process.env.ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "changeme123";
 process.env.ADMIN_NAME = process.env.ADMIN_NAME || "mcso";
 
-mkdirSync(path.join(process.cwd(), "data"), { recursive: true });
 console.log("[bootstrap] SQLite DATABASE_URL =", process.env.DATABASE_URL);
 
 function run(cmd, args) {

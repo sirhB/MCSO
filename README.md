@@ -11,6 +11,8 @@ Marketing site + admin CMS for Michael Colon Security Organization LLC.
 That’s it. The app:
 
 - Uses local SQLite automatically (ignores a Hostinger Postgres `DATABASE_URL` if injected)
+- On Hostinger production, SQLite lives under `/tmp/mcso-data` so the DB can open at runtime
+- `npm start` re-runs DB bootstrap so Michael’s login is recreated on each deploy/start
 - Syncs a durable backup to **Supabase Storage** with those two Hostinger keys
 - Restores from that backup on each fresh deploy
 - Auto-configures NextAuth secret/URL

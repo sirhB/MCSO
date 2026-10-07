@@ -55,6 +55,16 @@ export default function AdminLoginPage() {
         >
           {loading ? "Signing in…" : "Sign in"}
         </button>
+        <p
+          style={{
+            margin: "1rem 0 0",
+            fontSize: "0.75rem",
+            opacity: 0.55,
+            textAlign: "center",
+          }}
+        >
+          Build 2026-10-07c · use mcsogroup@gmail.com
+        </p>
       </form>
     </div>
   );
