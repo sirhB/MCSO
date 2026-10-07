@@ -63,7 +63,7 @@ export default function AdminLoginPage() {
             textAlign: "center",
           }}
         >
-          Build 2026-10-07c · use mcsogroup@gmail.com
+          Build 2026-10-07d · use mcsogroup@gmail.com
         </p>
       </form>
     </div>

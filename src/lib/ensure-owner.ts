@@ -31,34 +31,16 @@ export async function ensureOwnerAdmin() {
   return created.id;
 }
 
-/** Open DB, create missing schema via db push if needed, then seed owner. */
+/**
+ * Re-resolve SQLite path and ensure the owner row exists.
+ * Schema creation is handled by `npm run build` / `npm start` bootstrap
+ * (no child_process here — that breaks the Next Edge compile on Hostinger).
+ */
 export async function ensureDatabaseReady() {
-  // Re-resolve env in case startup cwd/permissions differ from build time.
   const { ensureRuntimeEnv } = await import("@/lib/runtime-env");
   ensureRuntimeEnv();
   resetPrismaClient();
 
-  try {
-    await prisma.$queryRaw`SELECT 1`;
-  } catch (err) {
-    console.warn("[db] ping failed, attempting schema push:", err);
-    const { spawnSync } = await import("child_process");
-    const push = spawnSync(
-      "npx",
-      ["prisma", "db", "push", "--accept-data-loss", "--skip-generate"],
-      {
-        env: process.env,
-        encoding: "utf8",
-        shell: process.platform === "win32",
-      },
-    );
-    if (push.status !== 0) {
-      console.warn("[db] prisma db push failed:", push.stderr || push.stdout);
-      throw err;
-    }
-    resetPrismaClient();
-    await prisma.$queryRaw`SELECT 1`;
-  }
-
+  await prisma.$queryRaw`SELECT 1`;
   await ensureOwnerAdmin();
 }
