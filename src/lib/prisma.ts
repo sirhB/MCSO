@@ -14,6 +14,12 @@ function createPrisma() {
   });
 }
 
+export function resetPrismaClient() {
+  void globalForPrisma.prisma?.$disconnect().catch(() => undefined);
+  globalForPrisma.prisma = undefined;
+  globalForPrisma.prismaUrl = undefined;
+}
+
 function getPrisma() {
   const url = process.env.DATABASE_URL;
   if (!globalForPrisma.prisma || globalForPrisma.prismaUrl !== url) {
@@ -32,7 +38,7 @@ export const prisma = new Proxy({} as PrismaClient, {
   },
 });
 
-/** Verify SQLite is reachable; used by setup/health routes. */
+/** Verify SQLite is reachable. */
 export async function pingDatabase() {
   await prisma.$queryRaw`SELECT 1`;
 }

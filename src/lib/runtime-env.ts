@@ -1,20 +1,35 @@
 import fs from "fs";
 import path from "path";
+import { pathToFileURL } from "url";
 
 /**
- * Auto-configure env so Hostinger only needs SUPABASE_URL + SUPABASE_API_KEY
- * (injected when you connect the database). No manual DATABASE_URL / NEXTAUTH_* required.
+ * Auto-configure env so Hostinger only needs SUPABASE_URL + SUPABASE_API_KEY.
  *
  * Kept self-contained (no local imports) because next.config.ts loads this file.
  *
- * Important: Hostinger may inject a Postgres DATABASE_URL when you "connect a
- * database". This app uses SQLite + Supabase Storage, so we always force a
- * local file: URL and ignore non-SQLite injected values.
+ * Hostinger may inject a Postgres DATABASE_URL — ignore it. Prefer a writable
+ * SQLite file under /tmp in production (deploy artifacts are often read-only).
  */
+function toSqliteUrl(absoluteDbPath: string) {
+  // Prisma expects a file URL; pathToFileURL yields file:///abs/path.db
+  return pathToFileURL(absoluteDbPath).href;
+}
+
+function prepareDbFile(dir: string, dbPath: string) {
+  fs.mkdirSync(dir, { recursive: true });
+  const probe = path.join(dir, ".write-test");
+  fs.writeFileSync(probe, "ok");
+  fs.unlinkSync(probe);
+  if (!fs.existsSync(dbPath)) {
+    // Touch an empty file so SQLite can open the path; schema comes from db push/bootstrap.
+    fs.writeFileSync(dbPath, "");
+  }
+  fs.accessSync(dbPath, fs.constants.R_OK | fs.constants.W_OK);
+}
+
 function ensureWritableDatabaseUrl(): string {
   const incoming = process.env.DATABASE_URL || "";
   if (incoming && !incoming.startsWith("file:")) {
-    // Preserve for debugging; never use Postgres/MySQL with this Prisma schema.
     process.env.MCSO_IGNORED_DATABASE_URL = incoming;
     console.warn(
       "[db] Ignoring non-SQLite DATABASE_URL from host (using local SQLite instead).",
@@ -26,52 +41,45 @@ function ensureWritableDatabaseUrl(): string {
   const fallbackDir = path.join("/tmp", "mcso-data");
   const fallbackDb = path.join(fallbackDir, "prod.db");
 
-  const canUse = (dir: string, dbPath: string) => {
+  const candidates =
+    process.env.NODE_ENV === "production"
+      ? [
+          // Hostinger runtime disk is often only writable under /tmp.
+          { dir: fallbackDir, db: fallbackDb, label: "tmp-fallback" },
+          { dir: preferredDir, db: preferredDb, label: "cwd-data" },
+        ]
+      : [
+          { dir: preferredDir, db: preferredDb, label: "cwd-data" },
+          { dir: fallbackDir, db: fallbackDb, label: "tmp-fallback" },
+        ];
+
+  for (const candidate of candidates) {
     try {
-      fs.mkdirSync(dir, { recursive: true });
-      const probe = path.join(dir, ".write-test");
-      fs.writeFileSync(probe, "ok");
-      fs.unlinkSync(probe);
-      if (fs.existsSync(dbPath)) {
-        fs.accessSync(dbPath, fs.constants.W_OK);
+      // Seed /tmp from build artifact when present.
+      if (
+        candidate.db === fallbackDb &&
+        fs.existsSync(preferredDb) &&
+        !fs.existsSync(fallbackDb)
+      ) {
+        fs.mkdirSync(fallbackDir, { recursive: true });
+        fs.copyFileSync(preferredDb, fallbackDb);
       }
-      return true;
-    } catch {
-      return false;
-    }
-  };
-
-  if (canUse(preferredDir, preferredDb)) {
-    return `file:${preferredDb}`;
-  }
-
-  try {
-    fs.mkdirSync(fallbackDir, { recursive: true });
-  } catch {
-    // continue; canUse will report failure
-  }
-
-  if (fs.existsSync(preferredDb) && !fs.existsSync(fallbackDb)) {
-    try {
-      fs.copyFileSync(preferredDb, fallbackDb);
+      prepareDbFile(candidate.dir, candidate.db);
+      const url = toSqliteUrl(candidate.db);
+      console.warn(`[db] SQLite ready (${candidate.label}):`, url);
+      return url;
     } catch (err) {
-      console.warn("[db] Could not copy SQLite to writable path:", err);
+      console.warn(`[db] Cannot use ${candidate.label}:`, err);
     }
   }
 
-  if (canUse(fallbackDir, fallbackDb)) {
-    console.warn("[db] Using writable SQLite fallback:", fallbackDb);
-    return `file:${fallbackDb}`;
-  }
-
-  // Last resort: still return a file URL (never a Postgres URL).
-  console.warn("[db] Writable SQLite path unavailable; using preferred path anyway.");
+  // Last resort
   try {
-    fs.mkdirSync(preferredDir, { recursive: true });
+    prepareDbFile(fallbackDir, fallbackDb);
   } catch {
     // ignore
   }
-  return `file:${preferredDb}`;
+  return toSqliteUrl(fallbackDb);
 }
 
 export function ensureRuntimeEnv() {
@@ -83,7 +91,7 @@ export function ensureRuntimeEnv() {
       "mcso-hostinger-default-nextauth-secret";
   }
 
-  if (!process.env.NEXTAUTH_URL) {
+  if (!process.env.NEXTAUTH_URL || process.env.NEXTAUTH_URL.includes("localhost")) {
     process.env.NEXTAUTH_URL =
       process.env.NEXT_PUBLIC_SITE_URL ||
       (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "") ||
