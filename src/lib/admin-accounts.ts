@@ -1,10 +1,6 @@
-/** Reserved demo admin for local/dev testing. Michael still registers once via /admin/setup. */
-export const DEMO_ADMIN = {
-  email: "demo@mcso.local",
-  password: "MCSO-Demo-2026!",
-  name: "Demo Admin",
+/** Seeded owner account for Michael (production + local). */
+export const OWNER_ADMIN = {
+  email: "mcsogroup@gmail.com",
+  password: "changeme123",
+  name: "mcso",
 } as const;
-
-export function isDemoEmail(email: string) {
-  return email.toLowerCase().trim() === DEMO_ADMIN.email;
-}

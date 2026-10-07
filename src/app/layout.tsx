@@ -16,6 +16,11 @@ const body = Figtree({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ||
+      process.env.NEXTAUTH_URL ||
+      "https://mcsogroup.com",
+  ),
   title: "MCSO Security Group | Professional Protection",
   description:
     "Veteran-owned private security. Executive protection, residential, commercial, and special event security in Florida and New York.",

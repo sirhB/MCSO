@@ -2,13 +2,13 @@ import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { AdminNav } from "@/components/admin/AdminNav";
+import { AdminWalkthrough } from "@/components/admin/AdminWalkthrough";
 
 export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  // Demo can use the admin while Michael still completes one-time /admin/setup.
   const session = await getServerSession(authOptions);
   if (!session) redirect("/admin/login");
 
@@ -16,6 +16,7 @@ export default async function DashboardLayout({
     <div className="admin-shell">
       <AdminNav />
       <main className="admin-main">{children}</main>
+      <AdminWalkthrough />
     </div>
   );
 }
