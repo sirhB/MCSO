@@ -8,21 +8,20 @@ const prisma = new PrismaClient();
 
 async function ensureOwnerAdmin() {
   const email = OWNER_ADMIN.email.toLowerCase();
-  const passwordHash = await hash(OWNER_ADMIN.password, 10);
   const existing = await prisma.user.findUnique({ where: { email } });
 
   if (existing) {
-    await prisma.user.update({
-      where: { id: existing.id },
-      data: {
-        name: OWNER_ADMIN.name,
-        passwordHash,
-        isDemo: false,
-      },
-    });
+    // Never reset Michael's password after he changes it from changeme123.
+    if (existing.name !== OWNER_ADMIN.name || existing.isDemo) {
+      await prisma.user.update({
+        where: { id: existing.id },
+        data: { name: OWNER_ADMIN.name, isDemo: false },
+      });
+    }
     return;
   }
 
+  const passwordHash = await hash(OWNER_ADMIN.password, 10);
   await prisma.user.create({
     data: {
       name: OWNER_ADMIN.name,
@@ -48,7 +47,6 @@ async function main() {
     });
   }
 
-  // Drop legacy per-template pages if present
   await prisma.sitePage.deleteMany({
     where: { slug: { in: ["template-editorial", "template-authority"] } },
   });
@@ -66,7 +64,7 @@ async function main() {
   console.log("Seed complete.");
   console.log(`Gallery images: ${finalCount}`);
   console.log(
-    `Owner admin ready: ${OWNER_ADMIN.email} / ${OWNER_ADMIN.password} (username ${OWNER_ADMIN.name})`,
+    `Owner admin: ${OWNER_ADMIN.email} (temp password only if newly created)`,
   );
   console.log(`Owner admin accounts: ${ownerCount}`);
 }

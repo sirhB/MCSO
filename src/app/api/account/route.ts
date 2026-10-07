@@ -5,6 +5,8 @@ import { z } from "zod";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { scheduleBackup } from "@/lib/backup";
+import { OWNER_ADMIN } from "@/lib/admin-accounts";
+import { passwordIsTemporary } from "@/lib/ensure-owner";
 
 export async function GET() {
   const session = await getServerSession(authOptions);
@@ -14,12 +16,28 @@ export async function GET() {
 
   const user = await prisma.user.findUnique({
     where: { email: session.user.email },
-    select: { id: true, name: true, email: true, createdAt: true },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      createdAt: true,
+      passwordHash: true,
+    },
   });
   if (!user) {
     return NextResponse.json({ error: "User not found" }, { status: 404 });
   }
-  return NextResponse.json({ user });
+
+  const mustChangePassword = await passwordIsTemporary(user.passwordHash);
+  return NextResponse.json({
+    user: {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      createdAt: user.createdAt,
+    },
+    mustChangePassword,
+  });
 }
 
 const patchSchema = z
@@ -85,6 +103,15 @@ export async function PATCH(req: NextRequest) {
       if (!ok) {
         return NextResponse.json(
           { error: "Current password is incorrect." },
+          { status: 400 },
+        );
+      }
+      if (body.newPassword === OWNER_ADMIN.password) {
+        return NextResponse.json(
+          {
+            error:
+              "Choose a new password — you cannot keep the temporary password.",
+          },
           { status: 400 },
         );
       }

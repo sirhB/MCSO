@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { AdminNav } from "@/components/admin/AdminNav";
 import { AdminWalkthrough } from "@/components/admin/AdminWalkthrough";
+import { ForcePasswordChange } from "@/components/admin/ForcePasswordChange";
 
 export default async function DashboardLayout({
   children,
@@ -16,6 +17,7 @@ export default async function DashboardLayout({
     <div className="admin-shell">
       <AdminNav />
       <main className="admin-main">{children}</main>
+      <ForcePasswordChange />
       <AdminWalkthrough />
     </div>
   );

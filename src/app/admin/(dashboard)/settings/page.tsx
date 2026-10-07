@@ -13,6 +13,7 @@ export default function AdminSettingsPage() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [mustChangePassword, setMustChangePassword] = useState(false);
 
   useEffect(() => {
     fetch("/api/account")
@@ -22,6 +23,7 @@ export default function AdminSettingsPage() {
           setName(data.user.name || "");
           setEmail(data.user.email || "");
         }
+        setMustChangePassword(Boolean(data.mustChangePassword));
       })
       .catch(() => setError("Could not load your account."));
   }, []);
@@ -75,6 +77,7 @@ export default function AdminSettingsPage() {
     setCurrentPassword("");
     setNewPassword("");
     setConfirmPassword("");
+    if (data.passwordChanged) setMustChangePassword(false);
     setMessage("Your account settings were saved.");
     setLoading(false);
   }
@@ -86,6 +89,13 @@ export default function AdminSettingsPage() {
         Update your username, sign-in email, or password. Signed in as{" "}
         {session?.user?.email || "admin"}.
       </p>
+
+      {mustChangePassword ? (
+        <p className="msco-form-error" style={{ maxWidth: 520 }}>
+          You are still using the temporary password. Change it below to continue
+          using the admin panel securely.
+        </p>
+      ) : null}
 
       <form className="admin-card" onSubmit={onSubmit} style={{ maxWidth: 520 }}>
         <label style={{ display: "grid", gap: 6, marginBottom: 14 }}>

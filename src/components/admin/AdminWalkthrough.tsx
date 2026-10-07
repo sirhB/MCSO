@@ -56,14 +56,33 @@ export function AdminWalkthrough() {
   const [step, setStep] = useState(0);
 
   useEffect(() => {
-    try {
-      if (window.localStorage.getItem(DONE_KEY) === "done") return;
-      const saved = Number(window.sessionStorage.getItem(STEP_KEY) || "0");
-      setStep(Number.isFinite(saved) ? Math.min(Math.max(saved, 0), STEPS.length - 1) : 0);
-      setOpen(true);
-    } catch {
-      setOpen(true);
+    let cancelled = false;
+
+    async function maybeOpen() {
+      try {
+        if (window.localStorage.getItem(DONE_KEY) === "done") return;
+        // Wait until the temporary password is changed so the security prompt wins.
+        const res = await fetch("/api/account");
+        const data = await res.json().catch(() => ({}));
+        if (cancelled) return;
+        if (data.mustChangePassword) return;
+
+        const saved = Number(window.sessionStorage.getItem(STEP_KEY) || "0");
+        setStep(
+          Number.isFinite(saved)
+            ? Math.min(Math.max(saved, 0), STEPS.length - 1)
+            : 0,
+        );
+        setOpen(true);
+      } catch {
+        if (!cancelled) setOpen(true);
+      }
     }
+
+    void maybeOpen();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   function persistStep(next: number) {
