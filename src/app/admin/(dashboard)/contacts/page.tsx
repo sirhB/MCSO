@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { inquiryMailto } from "@/lib/inquiry-mailto";
+import { useReplyPhrases } from "@/lib/use-reply-phrases";
 
 type Contact = {
   id: string;
@@ -22,6 +23,7 @@ type Contact = {
 export default function ContactsPage() {
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [query, setQuery] = useState("");
+  const replyPhrases = useReplyPhrases();
 
   useEffect(() => {
     fetch("/api/contacts")
@@ -75,11 +77,14 @@ export default function ContactsPage() {
             {filtered.map((contact) => {
               const latest = contact.inquiries[0];
               const mailHref = latest
-                ? inquiryMailto({
-                    name: contact.name,
-                    email: contact.email,
-                    message: latest.message,
-                  })
+                ? inquiryMailto(
+                    {
+                      name: contact.name,
+                      email: contact.email,
+                      message: latest.message,
+                    },
+                    replyPhrases,
+                  )
                 : `mailto:${contact.email}`;
               return (
                 <tr key={contact.id}>

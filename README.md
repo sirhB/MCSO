@@ -29,7 +29,7 @@ Sign in at `/admin/login`:
 | Email | `mcsogroup@gmail.com` |
 | Password | `changeme123` |
 
-Change the password after first login (Settings). A short mobile walkthrough introduces the admin on first visit.
+Change the password after first login (Settings). Under Settings you can also edit common reply phrases used for inquiry emails. A short mobile walkthrough introduces the admin on first visit.
 
 Contact form submissions appear under **Inquiries** (and on the dashboard). Use **Reply by email** to open a ready-to-send mailto reply.
 

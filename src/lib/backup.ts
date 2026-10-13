@@ -13,6 +13,7 @@ type Snapshot = {
   inquiries: Record<string, unknown>[];
   statusEvents: Record<string, unknown>[];
   gallery: Record<string, unknown>[];
+  settings?: Record<string, unknown>[];
 };
 
 async function ensureBucket() {
@@ -31,7 +32,7 @@ async function ensureBucket() {
 }
 
 export async function exportSnapshot(): Promise<Snapshot> {
-  const [users, pages, contacts, inquiries, statusEvents, gallery] =
+  const [users, pages, contacts, inquiries, statusEvents, gallery, settings] =
     await Promise.all([
       prisma.user.findMany(),
       prisma.sitePage.findMany(),
@@ -39,6 +40,7 @@ export async function exportSnapshot(): Promise<Snapshot> {
       prisma.inquiry.findMany(),
       prisma.statusEvent.findMany(),
       prisma.galleryImage.findMany(),
+      prisma.siteSetting.findMany(),
     ]);
   return {
     version: 1,
@@ -49,6 +51,7 @@ export async function exportSnapshot(): Promise<Snapshot> {
     inquiries: inquiries as unknown as Record<string, unknown>[],
     statusEvents: statusEvents as unknown as Record<string, unknown>[],
     gallery: gallery as unknown as Record<string, unknown>[],
+    settings: settings as unknown as Record<string, unknown>[],
   };
 }
 
@@ -111,6 +114,7 @@ export async function restoreFromSupabaseIfEmpty() {
     await prisma.inquiry.deleteMany();
     await prisma.contact.deleteMany();
     await prisma.galleryImage.deleteMany();
+    await prisma.siteSetting.deleteMany();
     await prisma.sitePage.deleteMany();
     await prisma.user.deleteMany();
 
@@ -147,6 +151,11 @@ export async function restoreFromSupabaseIfEmpty() {
     if (snapshot.gallery?.length) {
       for (const row of snapshot.gallery) {
         await prisma.galleryImage.create({ data: row as never });
+      }
+    }
+    if (snapshot.settings?.length) {
+      for (const row of snapshot.settings) {
+        await prisma.siteSetting.create({ data: row as never });
       }
     }
     console.log("[backup] Restored snapshot from Supabase Storage:", snapshot.savedAt);
