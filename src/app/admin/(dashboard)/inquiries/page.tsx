@@ -9,6 +9,7 @@ import {
   type InquiryStatus,
 } from "@/lib/inquiry-status";
 import { inquiryMailto } from "@/lib/inquiry-mailto";
+import { useReplyPhrases } from "@/lib/use-reply-phrases";
 
 type Inquiry = {
   id: string;
@@ -34,6 +35,7 @@ export default function InquiriesPage() {
   const [selected, setSelected] = useState<Inquiry | null>(null);
   const [saving, setSaving] = useState(false);
   const [loadError, setLoadError] = useState("");
+  const replyPhrases = useReplyPhrases();
 
   const load = useCallback(async () => {
     setLoadError("");
@@ -121,7 +123,7 @@ export default function InquiriesPage() {
               <div className="inquiry-list__actions">
                 <a
                   className="admin-btn admin-btn--gold"
-                  href={inquiryMailto(item)}
+                  href={inquiryMailto(item, replyPhrases)}
                 >
                   Reply by email
                 </a>
@@ -214,7 +216,7 @@ export default function InquiriesPage() {
 
           <a
             className="admin-btn admin-btn--gold inquiry-reply"
-            href={inquiryMailto(selected)}
+            href={inquiryMailto(selected, replyPhrases)}
           >
             Reply by email
           </a>
@@ -222,7 +224,7 @@ export default function InquiriesPage() {
           <div style={{ display: "grid", gap: "0.5rem", margin: "1rem 0" }}>
             <div>
               <strong>Email: </strong>
-              <a href={inquiryMailto(selected)}>{selected.email}</a>
+              <a href={inquiryMailto(selected, replyPhrases)}>{selected.email}</a>
             </div>
             <div>
               <strong>Phone: </strong>

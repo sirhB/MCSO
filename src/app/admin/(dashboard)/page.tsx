@@ -2,17 +2,19 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { STATUS_LABELS, type InquiryStatus } from "@/lib/inquiry-status";
 import { inquiryMailto } from "@/lib/inquiry-mailto";
+import { getReplyPhrases } from "@/lib/site-settings";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminDashboardPage() {
-  const [inquiryCount, newCount, contactCount, galleryCount, page] =
+  const [inquiryCount, newCount, contactCount, galleryCount, page, phrases] =
     await Promise.all([
       prisma.inquiry.count(),
       prisma.inquiry.count({ where: { status: "NEW" } }),
       prisma.contact.count(),
       prisma.galleryImage.count(),
       prisma.sitePage.findUnique({ where: { slug: "home" } }),
+      getReplyPhrases(),
     ]);
 
   const recent = await prisma.inquiry.findMany({
@@ -94,7 +96,10 @@ export default async function AdminDashboardPage() {
                     {new Date(item.createdAt).toLocaleString()}
                   </small>
                 </div>
-                <a className="admin-btn admin-btn--gold" href={inquiryMailto(item)}>
+                <a
+                  className="admin-btn admin-btn--gold"
+                  href={inquiryMailto(item, phrases)}
+                >
                   Reply by email
                 </a>
               </li>

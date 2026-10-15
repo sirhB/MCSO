@@ -1,19 +1,29 @@
+import {
+  DEFAULT_REPLY_PHRASES,
+  type ReplyPhrases,
+} from "@/lib/reply-phrases";
+
 /** Build a mailto that opens Michael's mail app with a ready-to-send reply. */
-export function inquiryMailto(inquiry: {
-  name: string;
-  email: string;
-  message: string;
-}) {
-  const subject = `Re: Your MCSO Security Group inquiry`;
+export function inquiryMailto(
+  inquiry: {
+    name: string;
+    email: string;
+    message: string;
+  },
+  phrases: ReplyPhrases = DEFAULT_REPLY_PHRASES,
+) {
+  const subject = phrases.subject || DEFAULT_REPLY_PHRASES.subject;
+  const intro = phrases.intro || DEFAULT_REPLY_PHRASES.intro;
+  const signOff = phrases.signOff || DEFAULT_REPLY_PHRASES.signOff;
+
   const body = [
     `Hi ${inquiry.name},`,
     "",
-    "Thank you for contacting MCSO Security Group. I'm following up on your message:",
+    intro,
     "",
     `“${inquiry.message.trim()}”`,
     "",
-    "Best regards,",
-    "MCSO Security Group",
+    signOff,
   ].join("\n");
 
   const params = new URLSearchParams({

@@ -45,7 +45,7 @@ const STEPS = [
   },
   {
     title: "Settings",
-    body: "Update your name, email, or password. Change changeme123 after your first sign-in.",
+    body: "Edit account info and password, and set common reply phrases used when you email inquiries. Change changeme123 after your first sign-in.",
     href: "/admin/settings",
     cta: "Finish tour",
   },
